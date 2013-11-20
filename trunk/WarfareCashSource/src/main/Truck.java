@@ -9,6 +9,10 @@ public class Truck {
 	private boolean arrived;
 
 	public Truck(int[] ammount, City origin, City destination) {
+		this(ammount, origin, destination, false);
+	}
+
+	public Truck(int[] ammount, City origin, City destination, boolean sell) {
 		this.ammounts = ammount;
 		this.origin = origin;
 		this.destination = destination;
@@ -23,14 +27,15 @@ public class Truck {
 	}
 
 	public void approach() {
-		double dir = Math.atan2(destination.y - y, destination.x - x);
-		if (Math.hypot(destination.y - y, destination.x - x) < 5) {
+		double speed = Math.random()*5 + 5;
+		double dir = getDirection();
+		if (Math.hypot(destination.y - y, destination.x - x) < speed) {
 			x = destination.x;
 			y = destination.y;
 			arrived = true;
 		} else {
 
-			translate(Math.cos(dir) * 5, Math.sin(dir) * 5);
+			translate(Math.cos(dir) * speed, Math.sin(dir) * speed);
 		}
 	}
 
@@ -68,6 +73,10 @@ public class Truck {
 
 	public double getDistanceLeft() {
 		return Math.hypot(destination.y - y, destination.x - x);
+	}
+
+	public float getDirection() {
+		return (float) Math.atan2(destination.y - y, destination.x - x);
 	}
 
 }

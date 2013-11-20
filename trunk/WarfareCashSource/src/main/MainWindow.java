@@ -2,6 +2,7 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -24,12 +25,12 @@ public class MainWindow {
 	private JFrame frame;
 	private JLabel label_cash, label_debt, label_cityname;
 
-	private JLabel[] label_resources;
-	private JSpinner[] textfield_resources;
+	private JLabel[] label_resources, label_wayfaring;
+	private JSpinner[] spinners;
 
 	private JPanel panel_means, panel_, panel_shop;
 	private Map panel_map;
-	private JButton button_buy;
+	private JButton[] buttons_buy;
 	//
 	private Data data;
 
@@ -39,11 +40,12 @@ public class MainWindow {
 
 		frame = new JFrame();
 		frame.getContentPane().setLayout(new GridLayout(2, 2));
-		frame.setResizable(false);
+		// frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		{// PANEL MEANS
 			panel_means = new JPanel();
+			panel_means.setLayout(new BorderLayout());
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means"));
 
 			label_cash = new JLabel();
@@ -74,37 +76,54 @@ public class MainWindow {
 				}
 			});
 			panel_means.add(button_loan);
+			{
+				JPanel panel_resources = new JPanel();
+				panel_resources.setBorder(BorderFactory
+						.createTitledBorder("Warehouse"));
+				panel_resources.setLayout(new GridLayout(1, 3));
 
-			JPanel panel_resources = new JPanel();
-			panel_resources.setBorder(BorderFactory
-					.createTitledBorder("Warehouse"));
-			panel_resources.setLayout(new GridLayout(1, 3));
+				JPanel panel_resources_ammount = new JPanel();
+				panel_resources_ammount.setLayout(new GridLayout(
+						Cargo.values().length, 1));
+				JPanel panel_resources_sell = new JPanel();
+				panel_resources_sell.setLayout(new GridLayout(
+						Cargo.values().length, 1));
+				JPanel panel_resources_sell_all = new JPanel();
+				panel_resources_sell_all.setLayout(new GridLayout(Cargo
+						.values().length, 1));
 
-			JPanel panel_resources_ammount = new JPanel();
-			panel_resources_ammount.setLayout(new GridLayout(
-					Cargo.values().length, 1));
-			JPanel panel_resources_sell = new JPanel();
-			panel_resources_sell.setLayout(new GridLayout(
-					Cargo.values().length, 1));
-			JPanel panel_resources_sell_all = new JPanel();
-			panel_resources_sell_all.setLayout(new GridLayout(
-					Cargo.values().length, 1));
+				label_resources = new JLabel[Cargo.values().length];
+				for (int i = 0; i < Cargo.values().length; i++) {
+					label_resources[i] = new JLabel(data.getResourceAmmount(i)
+							+ "");
+					panel_resources_ammount.add(label_resources[i]);
 
-			label_resources = new JLabel[Cargo.values().length];
-			for (int i = 0; i < Cargo.values().length; i++) {
-				label_resources[i] = new JLabel(data.getResourceAmmount(i)
-						+ " " + Cargo.values()[i].getUnits());
-				panel_resources_ammount.add(label_resources[i]);
+					addSellButtons(i, panel_resources_sell,
+							panel_resources_sell_all);
+				}
+				panel_resources.add(panel_resources_ammount);
+				panel_resources.add(panel_resources_sell);
+				panel_resources.add(panel_resources_sell_all);
 
-				addSellButtons(i, panel_resources_sell,
-						panel_resources_sell_all);
+				panel_means.add(panel_resources, BorderLayout.CENTER);
 			}
-			panel_resources.add(panel_resources_ammount);
-			panel_resources.add(panel_resources_sell);
-			panel_resources.add(panel_resources_sell_all);
 
-			panel_means.add(panel_resources);
+			{
+				JPanel panel_wayfaring = new JPanel();
+				panel_wayfaring.setBorder(BorderFactory
+						.createTitledBorder("Wayfaring"));
+				panel_wayfaring.setLayout(new GridLayout(Cargo.values().length,
+						1));
 
+				label_wayfaring = new JLabel[Cargo.values().length];
+				for (int i = 0; i < Cargo.values().length; i++) {
+					label_resources[i] = new JLabel(data.getResourceAmmount(i)
+							+ "",JLabel.CENTER);
+					panel_wayfaring.add(label_resources[i]);
+
+				}
+				panel_means.add(panel_wayfaring, BorderLayout.SOUTH);
+			}
 			frame.getContentPane().add(panel_means);
 		}
 
@@ -139,42 +158,62 @@ public class MainWindow {
 			panel_shop.add(label_cityname, BorderLayout.NORTH);
 
 			JPanel panel_resources = new JPanel();
+			panel_resources.setBorder(BorderFactory
+					.createTitledBorder("Warehouse"));
 			panel_resources.setLayout(new GridLayout(Cargo.values().length, 1));
-			textfield_resources = new JSpinner[Cargo.values().length];
+
+			buttons_buy = new JButton[Cargo.values().length];
+			spinners = new JSpinner[Cargo.values().length];
 			for (int i = 0; i < Cargo.values().length; i++) {
-				JPanel panel_cargo_specific = new JPanel();
-				textfield_resources[i] = new JSpinner(getSpinnerModel());
-				panel_cargo_specific
-						.add(new JLabel(Cargo.values()[i].getName()));
-				panel_cargo_specific.add(textfield_resources[i]);
-				panel_cargo_specific.add(new JLabel(Cargo.values()[i]
-						.getUnits()));
-				panel_resources.add(panel_cargo_specific);
+
+				JPanel panel_cargo_private = new JPanel();
+				panel_cargo_private.setLayout(new GridLayout(1, 1));
+
+				// TOP
+				JPanel panel_cargo_private_top = new JPanel();
+				panel_cargo_private_top.setLayout(new BorderLayout());
+				panel_cargo_private.add(panel_cargo_private_top);
+
+				panel_cargo_private_top.add(new JLabel(Cargo.values()[i]
+						.getName(), JLabel.CENTER));
+
+				JPanel panel_cargo_private_top_east = new JPanel();
+				panel_cargo_private_top_east.setLayout(new FlowLayout());
+				spinners[i] = new JSpinner(getSpinnerModel());
+				spinners[i].setPreferredSize(new Dimension(60, 20));
+				panel_cargo_private_top_east
+						.add(spinners[i], BorderLayout.EAST);
+
+				buttons_buy[i] = new JButton("Buy");
+				buttons_buy[i].addActionListener(new BuyActionListener(i));
+				panel_cargo_private_top_east.add(buttons_buy[i]);
+				panel_cargo_private_top.add(panel_cargo_private_top_east,
+						BorderLayout.EAST);
+
+				// // BOTTOM
+				// JButton button_zero = new JButton("0");
+				// button_zero.setPreferredSize(new Dimension(45, 20));
+				// button_zero.addActionListener(new ZeroActionListener(
+				// spinners[i]));
+				// panel_cargo_private_top_east.add(button_zero);
+				// JPanel panel_cargo_private_bottom = new JPanel();
+				// panel_cargo_private_bottom.setLayout(new BorderLayout());
+				// panel_cargo_private.add(panel_cargo_private_bottom);
+				//
+				// panel_cargo_private_bottom.add(new JLabel("p",
+				// JLabel.CENTER));
+
+				//
+
+				//
+				panel_resources.add(panel_cargo_private);
 			}
+
 			panel_shop.add(panel_resources, BorderLayout.CENTER);
+			JButton button_buy_all = new JButton("Buy All");
+			button_buy_all.addActionListener(new BuyAllActionListener());
+			panel_shop.add(button_buy_all, BorderLayout.SOUTH);
 
-			button_buy = new JButton("Buy");
-			button_buy.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-
-					int[] ammounts = new int[Cargo.values().length];
-					for (int i = 0; i < ammounts.length; i++) {
-						ammounts[i] = (Integer) textfield_resources[i]
-								.getValue();
-					}
-
-					if (data.getSelectedCity() == data.getWarehouseCity()) {
-						data.addResources(ammounts);
-					} else {
-						Truck c = new Truck(ammounts, data.getSelectedCity(),
-								data.getWarehouseCity());
-						data.addTruck(c);
-					}
-					reloadUI();
-				}
-			});
-			panel_shop.add(button_buy, BorderLayout.SOUTH);
 			frame.getContentPane().add(panel_shop);
 		}
 
@@ -187,7 +226,7 @@ public class MainWindow {
 
 	private void addSellButtons(final int index, JPanel sell, JPanel sell_all) {
 		{
-			JButton button_sell_resource = new JButton("sell");
+			JButton button_sell_resource = new JButton("Sell");
 			button_sell_resource.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -198,7 +237,7 @@ public class MainWindow {
 			sell.add(button_sell_resource);
 		}
 		{
-			JButton button_sell_all_resource = new JButton("sell");
+			JButton button_sell_all_resource = new JButton("Sell All");
 			button_sell_all_resource.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -230,9 +269,13 @@ public class MainWindow {
 			panel_shop = new JPanel();
 			if (selectedCity != null) {
 				label_cityname.setText(selectedCity.name);
-				button_buy.setVisible(true);
-			} else {
-				button_buy.setVisible(false);
+				// for (int i = 0; i < buttons_buy.length; i++) {
+				// buttons_buy[i].setVisible(true);
+				// }
+				// } else {
+				// for (int i = 0; i < buttons_buy.length; i++) {
+				// buttons_buy[i].setVisible(false);
+				// }
 			}
 		}
 
@@ -261,5 +304,67 @@ public class MainWindow {
 				new Integer(1) // step
 		);
 	}
+
+	class BuyActionListener implements ActionListener {
+		int index;
+
+		public BuyActionListener(int i) {
+			index = i;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+
+			int[] ammounts = new int[Cargo.values().length];
+			ammounts[index] = (Integer) spinners[index].getValue();
+
+			if (ammounts[index] > 0)
+				if (data.getSelectedCity() == data.getWarehouseCity()) {
+					data.addResources(ammounts);
+				} else {
+					Truck c = new Truck(ammounts, data.getSelectedCity(),
+							data.getWarehouseCity());
+					data.addTruck(c);
+				}
+			reloadUI();
+		}
+	};
+
+	class BuyAllActionListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+
+			int[] ammounts = new int[Cargo.values().length];
+			int sum = 0;
+			for (int i = 0; i < ammounts.length; i++) {
+				ammounts[i] = (Integer) spinners[i].getValue();
+				sum += ammounts[i];
+			}
+
+			if (sum > 0)
+				if (data.getSelectedCity() == data.getWarehouseCity()) {
+					data.addResources(ammounts);
+				} else {
+					Truck c = new Truck(ammounts, data.getSelectedCity(),
+							data.getWarehouseCity());
+					data.addTruck(c);
+				}
+			reloadUI();
+		}
+	};
+
+	class ZeroActionListener implements ActionListener {
+		JSpinner spinner;
+
+		public ZeroActionListener(JSpinner s) {
+			spinner = s;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			spinner.setValue(0);
+			reloadUI();
+		}
+	};
 
 }
