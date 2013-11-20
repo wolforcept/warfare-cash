@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 import main.Level.City;
 
@@ -20,6 +19,7 @@ public class Data {
 	private int selectedCity, warehouseCity;
 	private LinkedList<Truck> trucks;
 	private int[] resources;
+	private double[] currentValues;
 	private String levelName;
 	private double hazardRisk;
 	private Level level;
@@ -29,9 +29,16 @@ public class Data {
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
 		hazardRisk = 0.001;
+
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
 			resources[i] = 0;
+		}
+
+		currentValues = new double[Cargo.values().length];
+		for (int i = 0; i < resources.length; i++) {
+			currentValues[i] = Cargo.values()[i].getMin() + Math.random()
+					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 
 		this.level = level;
@@ -70,14 +77,12 @@ public class Data {
 		increaseHazard();
 	}
 
+	public void setWarehouseCity(int warehouseCity) {
+		this.warehouseCity = warehouseCity;
+	}
+
 	public void setSelectedCity(int i) {
 		selectedCity = i;
-		if (warehouseCity == -1) {
-			warehouseCity = i;
-			JOptionPane.showMessageDialog(null,
-					"you chose to build your warehouse in "
-							+ level.getCity(i).name);
-		}
 	}
 
 	public City getSelectedCity() {
@@ -190,6 +195,10 @@ public class Data {
 
 	public int getNumberOfCities() {
 		return level.getCitiesSnapshot().size();
+	}
+
+	public int getWarehouseCityIndex() {
+		return warehouseCity;
 	}
 
 }
