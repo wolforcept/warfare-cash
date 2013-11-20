@@ -5,7 +5,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -35,12 +34,11 @@ public class Main {
 	}
 
 	private JFrame frame;
-	private JList list_levels;
+	private JList<Level> list_levels;
 
 	public Main() {
 
 		Level[] levels = readLevels();
-		String[] levelNames = getLevelNames(levels);
 
 		frame = new JFrame(GAME_NAME);
 		frame.getContentPane().setLayout(new BorderLayout());
@@ -51,9 +49,9 @@ public class Main {
 		panel_main.setLayout(new BorderLayout());
 		frame.getContentPane().add(panel_main, BorderLayout.CENTER);
 		{// MAIN PANEL
-			list_levels = new JList();
+			list_levels = new JList<Level>();
 			list_levels.setBorder(BorderFactory.createTitledBorder("Levels"));
-			list_levels.setListData(levelNames);
+			list_levels.setListData(levels);
 			list_levels.setSelectedIndex(0);
 			panel_main.add(list_levels, BorderLayout.WEST);
 
@@ -67,7 +65,7 @@ public class Main {
 				JButton button_start = new JButton(BUTTONS[0]);
 				button_start.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						new MainWindow((String) list_levels.getSelectedValue());
+						new MainWindow((Level) list_levels.getSelectedValue());
 						frame.setVisible(false);
 						frame.dispose();
 						System.gc();
@@ -108,14 +106,6 @@ public class Main {
 		frame.setVisible(true);
 	}
 
-	private String[] getLevelNames(Level[] levels) {
-		String[] levelNames = new String[levels.length];
-		for (int i = 0; i < levels.length; i++) {
-			levelNames[i] = levels[i].getName();
-		}
-		return levelNames;
-	}
-
 	private Level[] readLevels() {
 		InputStream levels_input = getClass().getResourceAsStream(
 				"/resources/levels");
@@ -125,6 +115,8 @@ public class Main {
 		while (scanner.hasNext()) {
 			levels.add(new Level(scanner.nextLine()));
 		}
+
+		scanner.close();
 
 		return levels.toArray(new Level[levels.size()]);
 	}
