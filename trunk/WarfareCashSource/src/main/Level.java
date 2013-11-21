@@ -50,7 +50,7 @@ public class Level {
 	}
 
 	public synchronized ArrayList<City> getCitiesSnapshot() {
-		return new ArrayList<>(cities);
+		return new ArrayList<City>(cities);
 	}
 
 	public City getCity(int index) {
