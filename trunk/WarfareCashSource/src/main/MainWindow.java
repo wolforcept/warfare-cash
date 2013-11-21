@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -16,8 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-
-import main.Level.City;
 
 public class MainWindow {
 
@@ -47,6 +46,7 @@ public class MainWindow {
 			panel_means = new JPanel();
 			panel_means.setLayout(new BorderLayout());
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means"));
+			panel_means.setPreferredSize(new Dimension(320, 320));
 
 			label_cash = new JLabel();
 			label_cash.setFont(new Font(null, Font.BOLD, 18));
@@ -76,34 +76,26 @@ public class MainWindow {
 				}
 			});
 			panel_means.add(button_loan);
+
 			{
 				JPanel panel_resources = new JPanel();
 				panel_resources.setBorder(BorderFactory
 						.createTitledBorder("Warehouse"));
-				panel_resources.setLayout(new GridLayout(1, 3));
-
-				JPanel panel_resources_ammount = new JPanel();
-				panel_resources_ammount.setLayout(new GridLayout(
-						Cargo.values().length, 1));
-				JPanel panel_resources_sell = new JPanel();
-				panel_resources_sell.setLayout(new GridLayout(
-						Cargo.values().length, 1));
-				JPanel panel_resources_sell_all = new JPanel();
-				panel_resources_sell_all.setLayout(new GridLayout(Cargo
-						.values().length, 1));
+				panel_resources.setLayout(new GridLayout(Cargo.values().length,
+						1));
 
 				label_resources = new JLabel[Cargo.values().length];
 				for (int i = 0; i < Cargo.values().length; i++) {
-					label_resources[i] = new JLabel(data.getResourceAmmount(i)
-							+ "");
-					panel_resources_ammount.add(label_resources[i]);
+					JPanel panel_private_resource = new JPanel();
+					panel_private_resource.setLayout(new GridLayout(1, 2));
+					JLabel label_resource_name = new JLabel(
+							Cargo.values()[i].getName() + ":  ", JLabel.RIGHT);
 
-					addSellButtons(i, panel_resources_sell,
-							panel_resources_sell_all);
+					label_resources[i] = new JLabel();
+					panel_resources.add(label_resource_name);
+					panel_resources.add(label_resources[i]);
+
 				}
-				panel_resources.add(panel_resources_ammount);
-				panel_resources.add(panel_resources_sell);
-				panel_resources.add(panel_resources_sell_all);
 
 				panel_means.add(panel_resources, BorderLayout.CENTER);
 			}
@@ -117,9 +109,9 @@ public class MainWindow {
 
 				label_wayfaring = new JLabel[Cargo.values().length];
 				for (int i = 0; i < Cargo.values().length; i++) {
-					label_resources[i] = new JLabel(data.getResourceAmmount(i)
-							+ "",JLabel.CENTER);
-					panel_wayfaring.add(label_resources[i]);
+					label_wayfaring[i] = new JLabel(data.getResourceAmmount(i)
+							+ "", JLabel.CENTER);
+					panel_wayfaring.add(label_wayfaring[i]);
 
 				}
 				panel_means.add(panel_wayfaring, BorderLayout.SOUTH);
@@ -224,7 +216,7 @@ public class MainWindow {
 		new Controller(this, data).start();
 	}
 
-	private void addSellButtons(final int index, JPanel sell, JPanel sell_all) {
+	private void addSellButtons(final int index, JPanel panel) {
 		{
 			JButton button_sell_resource = new JButton("Sell");
 			button_sell_resource.addActionListener(new ActionListener() {
@@ -234,7 +226,7 @@ public class MainWindow {
 					reloadUI();
 				}
 			});
-			sell.add(button_sell_resource);
+			panel.add(button_sell_resource);
 		}
 		{
 			JButton button_sell_all_resource = new JButton("Sell All");
@@ -245,12 +237,12 @@ public class MainWindow {
 					reloadUI();
 				}
 			});
-			sell_all.add(button_sell_all_resource);
+			panel.add(button_sell_all_resource);
 		}
 	}
 
 	void reloadUI() {
-		City selectedCity = data.getSelectedCity();
+		City selectedCity = data.getSelCity();
 		if (data.getWarehouseCity() != null)
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means at "
 					+ data.getWarehouseCity().name));
@@ -261,8 +253,32 @@ public class MainWindow {
 				label_debt.setText(data.getDebtInt() + "$ debt");
 			else
 				label_debt.setText("no debts");
-			for (int i = 0; i < label_resources.length; i++) {
-				label_resources[i].setText("" + data.getResourceAmmount(i));
+			if (data.getSelCity() != null)
+				for (int i = 0; i < label_resources.length; i++) {
+					int nr = (int) Math.round(data.getSelCity().valueOf(i));
+					label_resources[i].setText("$ " + String.format("%,d", nr));
+					if (nr >= 1000000) {
+						nr = (int) Math.round(nr / 100);
+						label_resources[i].setText("$ "
+								+ String.format("%,d", nr) + " mil");
+					}
+
+				}
+
+			for (int i = 0; i < label_wayfaring.length; i++) {
+				int sums = 0;
+				for (Truck t : data.getTrucksSnapshot()) {
+					sums += t.getAmmounts()[i];
+				}
+				if (sums > 0) {
+					label_wayfaring[i].setForeground(Color.black);
+					label_wayfaring[i].setText(sums + " "
+							+ Cargo.values()[i].getName() + " travelling");
+				} else {
+					label_wayfaring[i].setForeground(Color.gray);
+					label_wayfaring[i].setText("no "
+							+ Cargo.values()[i].getName() + " travelling");
+				}
 			}
 		}
 		{// PANEL SHOP
@@ -319,10 +335,10 @@ public class MainWindow {
 			ammounts[index] = (Integer) spinners[index].getValue();
 
 			if (ammounts[index] > 0)
-				if (data.getSelectedCity() == data.getWarehouseCity()) {
+				if (data.getSelCity() == data.getWarehouseCity()) {
 					data.addResources(ammounts);
 				} else {
-					Truck c = new Truck(ammounts, data.getSelectedCity(),
+					Truck c = new Truck(ammounts, data.getSelCity(),
 							data.getWarehouseCity());
 					data.addTruck(c);
 				}
@@ -342,10 +358,10 @@ public class MainWindow {
 			}
 
 			if (sum > 0)
-				if (data.getSelectedCity() == data.getWarehouseCity()) {
+				if (data.getSelCity() == data.getWarehouseCity()) {
 					data.addResources(ammounts);
 				} else {
-					Truck c = new Truck(ammounts, data.getSelectedCity(),
+					Truck c = new Truck(ammounts, data.getSelCity(),
 							data.getWarehouseCity());
 					data.addTruck(c);
 				}

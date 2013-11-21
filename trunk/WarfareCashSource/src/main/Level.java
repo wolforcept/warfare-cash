@@ -32,23 +32,6 @@ public class Level {
 		}
 	}
 
-	class City {
-		String name;
-		int x, y, nr;
-
-		// boolean hazerded;
-
-		public City(String name, int x, int y, int nr) {
-			this.x = x;
-			this.y = y;
-			this.nr = nr;
-			// this.hazarded = false;
-			this.name = name;
-			print("   " + name + " " + x + "," + y + " nr:" + nr);
-		}
-
-	}
-
 	@Override
 	public String toString() {
 		return name;

@@ -12,8 +12,6 @@ import java.util.LinkedList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import main.Level.City;
-
 public class Map extends JPanel {
 
 	private static final long serialVersionUID = 1L;

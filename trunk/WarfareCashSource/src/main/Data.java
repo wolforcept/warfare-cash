@@ -10,8 +10,6 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
-import main.Level.City;
-
 public class Data {
 
 	private double money;
@@ -19,7 +17,7 @@ public class Data {
 	private int selectedCity, warehouseCity;
 	private LinkedList<Truck> trucks;
 	private int[] resources;
-	private double[] currentValues;
+
 	private String levelName;
 	private double hazardRisk;
 	private Level level;
@@ -33,12 +31,6 @@ public class Data {
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
 			resources[i] = 0;
-		}
-
-		currentValues = new double[Cargo.values().length];
-		for (int i = 0; i < resources.length; i++) {
-			currentValues[i] = Cargo.values()[i].getMin() + Math.random()
-					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 
 		this.level = level;
@@ -85,7 +77,7 @@ public class Data {
 		selectedCity = i;
 	}
 
-	public City getSelectedCity() {
+	public City getSelCity() {
 		if (selectedCity >= 0
 				&& selectedCity < level.getCitiesSnapshot().size())
 			return getCity(selectedCity);
