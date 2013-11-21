@@ -1,6 +1,5 @@
 package main;
 
-import main.Level.City;
 
 public class Truck {
 	private int[] ammounts;
