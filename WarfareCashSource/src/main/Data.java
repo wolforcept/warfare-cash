@@ -5,12 +5,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 public class Data {
+
+	public static final double WAR_CHANCE = 1;
 
 	private double money;
 	private LinkedList<Debt> debts;
@@ -18,15 +22,19 @@ public class Data {
 	private LinkedList<Truck> trucks;
 	private int[] resources;
 
+	private LinkedList<War> wars;
+
 	private String levelName;
 	private double hazardRisk;
 	private Level level;
 
 	public Data(Level level) {
-		money = 100;
+		money = 999999;
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
 		hazardRisk = 0.001;
+
+		wars = new LinkedList<War>();
 
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
@@ -47,8 +55,8 @@ public class Data {
 		return (int) Math.round(money);
 	}
 
-	public void addMoney(int ammount) {
-		money += ammount;
+	public void addMoney(double totalPrice) {
+		money += totalPrice;
 	}
 
 	public City getCity(int i) {
@@ -64,7 +72,7 @@ public class Data {
 	}
 
 	public void loan(int ammount, double interest) {
-		money += ammount;
+		addMoney(ammount);
 		debts.add(new Debt(null, ammount, interest));
 		increaseHazard();
 	}
@@ -119,13 +127,30 @@ public class Data {
 	}
 
 	private void dumpTruck(Truck t) {
-		addResources(t.getAmmounts());
+		if (!t.isSeller()) {
+			addResources(t.getAmmounts());
+		}
 	}
 
 	public void addResources(int[] ammounts) {
 		for (int i = 0; i < ammounts.length; i++) {
 			resources[i] += ammounts[i];
 		}
+	}
+
+	public void removeResources(int[] ammounts) {
+		for (int i = 0; i < ammounts.length; i++) {
+			resources[i] -= ammounts[i];
+		}
+	}
+
+	public boolean hasResources(int[] ammounts) {
+		boolean hasResources = true;
+		for (int i = 0; i < ammounts.length; i++) {
+			if (resources[i] < ammounts[i])
+				hasResources = false;
+		}
+		return hasResources;
 	}
 
 	public int getResourceAmmount(int i) {
@@ -193,4 +218,31 @@ public class Data {
 		return warehouseCity;
 	}
 
+	public double getTripPrice(double Multiplier, City c1, City c2) {
+		return Multiplier * Math.hypot(c1.x - c2.x, c1.y - c2.y);
+	}
+
+	public void startWar() {
+		City c1 = getRandomCity();
+		City c2;
+		do {
+			c2 = getRandomCity();
+		} while (c2.name.equals(c1.name));
+		wars.add(new War(getRandomCity(), c2));
+
+	}
+
+	private City getRandomCity() {
+		ArrayList<City> list = level.getCitiesSnapshot();
+		Collections.shuffle(list);
+		return list.get(0);
+	}
+
+	public void stepWars() {
+		for (War war : wars) {
+			if (war.stepAndTryEnd()) {
+				
+			}
+		}
+	}
 }

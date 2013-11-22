@@ -28,13 +28,19 @@ public class Controller extends Thread {
 				}
 
 				data.increaseDebts();
-				if(Math.random() < data.getHazardRisk()){
+				if (Math.random() < data.getHazardRisk()) {
 					data.hazardCity();
 				}
 
 				if (data.releaseTrucks()) {
 					window.reloadUI();
 				}
+
+				if (Math.random() < data.WAR_CHANCE) {
+					data.startWar();
+				}
+				data.stepWars();
+
 				sleep(1000);
 
 			}
