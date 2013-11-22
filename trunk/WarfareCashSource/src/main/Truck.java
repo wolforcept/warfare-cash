@@ -1,11 +1,10 @@
 package main;
 
-
 public class Truck {
 	private int[] ammounts;
 	private City origin, destination;
 	private int x, y;
-	private boolean arrived;
+	private boolean arrived, sell;
 
 	public Truck(int[] ammount, City origin, City destination) {
 		this(ammount, origin, destination, false);
@@ -18,6 +17,7 @@ public class Truck {
 		x = origin.x;
 		y = origin.y;
 		arrived = false;
+		this.sell = sell;
 	}
 
 	private void translate(double d, double e) {
@@ -26,7 +26,7 @@ public class Truck {
 	}
 
 	public void approach() {
-		double speed = Math.random()*5 + 5;
+		double speed = Math.random() * 5 + 5;
 		double dir = getDirection();
 		if (Math.hypot(destination.y - y, destination.x - x) < speed) {
 			x = destination.x;
@@ -76,6 +76,10 @@ public class Truck {
 
 	public float getDirection() {
 		return (float) Math.atan2(destination.y - y, destination.x - x);
+	}
+
+	public boolean isSeller() {
+		return sell;
 	}
 
 }

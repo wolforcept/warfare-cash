@@ -24,7 +24,8 @@ public class MainWindow {
 	private JFrame frame;
 	private JLabel label_cash, label_debt, label_cityname;
 
-	private JLabel[] label_resources, label_wayfaring;
+	private JLabel[] label_resource_quantities, label_resource_prices,
+			label_wayfaring;
 	private JSpinner[] spinners;
 
 	private JPanel panel_means, panel_, panel_shop;
@@ -50,11 +51,12 @@ public class MainWindow {
 
 			label_cash = new JLabel();
 			label_cash.setFont(new Font(null, Font.BOLD, 18));
-			panel_means.add(label_cash);
+			JPanel panel_means_money = new JPanel();
+			panel_means_money.add(label_cash);
 			label_debt = new JLabel();
-			panel_means.add(label_debt);
+			panel_means_money.add(label_debt);
 
-			JButton button_loan = new JButton("loan");
+			JButton button_loan = new JButton("Loan");
 			button_loan.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -75,7 +77,9 @@ public class MainWindow {
 					reloadUI();
 				}
 			});
-			panel_means.add(button_loan);
+			panel_means_money.add(button_loan);
+
+			panel_means.add(panel_means_money, BorderLayout.NORTH);
 
 			{
 				JPanel panel_resources = new JPanel();
@@ -84,17 +88,16 @@ public class MainWindow {
 				panel_resources.setLayout(new GridLayout(Cargo.values().length,
 						1));
 
-				label_resources = new JLabel[Cargo.values().length];
+				label_resource_quantities = new JLabel[Cargo.values().length];
 				for (int i = 0; i < Cargo.values().length; i++) {
 					JPanel panel_private_resource = new JPanel();
 					panel_private_resource.setLayout(new GridLayout(1, 2));
 					JLabel label_resource_name = new JLabel(
 							Cargo.values()[i].getName() + ":  ", JLabel.RIGHT);
 
-					label_resources[i] = new JLabel();
+					label_resource_quantities[i] = new JLabel();
 					panel_resources.add(label_resource_name);
-					panel_resources.add(label_resources[i]);
-
+					panel_resources.add(label_resource_quantities[i]);
 				}
 
 				panel_means.add(panel_resources, BorderLayout.CENTER);
@@ -150,11 +153,11 @@ public class MainWindow {
 			panel_shop.add(label_cityname, BorderLayout.NORTH);
 
 			JPanel panel_resources = new JPanel();
-			panel_resources.setBorder(BorderFactory
-					.createTitledBorder("Warehouse"));
+			panel_resources.setBorder(BorderFactory.createTitledBorder("Shop"));
 			panel_resources.setLayout(new GridLayout(Cargo.values().length, 1));
 
 			buttons_buy = new JButton[Cargo.values().length];
+			label_resource_prices = new JLabel[Cargo.values().length];
 			spinners = new JSpinner[Cargo.values().length];
 			for (int i = 0; i < Cargo.values().length; i++) {
 
@@ -166,8 +169,9 @@ public class MainWindow {
 				panel_cargo_private_top.setLayout(new BorderLayout());
 				panel_cargo_private.add(panel_cargo_private_top);
 
-				panel_cargo_private_top.add(new JLabel(Cargo.values()[i]
-						.getName(), JLabel.CENTER));
+				panel_cargo_private_top.add(
+						new JLabel(Cargo.values()[i].getName(), JLabel.CENTER),
+						BorderLayout.CENTER);
 
 				JPanel panel_cargo_private_top_east = new JPanel();
 				panel_cargo_private_top_east.setLayout(new FlowLayout());
@@ -179,8 +183,18 @@ public class MainWindow {
 				buttons_buy[i] = new JButton("Buy");
 				buttons_buy[i].addActionListener(new BuyActionListener(i));
 				panel_cargo_private_top_east.add(buttons_buy[i]);
+
+				JButton button_sell = new JButton("Sell");
+				button_sell.addActionListener(new SellActionListener(i));
+				panel_cargo_private_top_east.add(button_sell);
+
 				panel_cargo_private_top.add(panel_cargo_private_top_east,
 						BorderLayout.EAST);
+
+				// BOTTOM
+				label_resource_prices[i] = new JLabel();
+				panel_cargo_private_top.add(label_resource_prices[i],
+						BorderLayout.WEST);
 
 				// // BOTTOM
 				// JButton button_zero = new JButton("0");
@@ -194,17 +208,21 @@ public class MainWindow {
 				//
 				// panel_cargo_private_bottom.add(new JLabel("p",
 				// JLabel.CENTER));
-
-				//
-
-				//
 				panel_resources.add(panel_cargo_private);
 			}
 
 			panel_shop.add(panel_resources, BorderLayout.CENTER);
+
+			JPanel panel_buttons_all = new JPanel();
+			panel_buttons_all.setLayout(new GridLayout(1, 2));
 			JButton button_buy_all = new JButton("Buy All");
-			button_buy_all.addActionListener(new BuyAllActionListener());
-			panel_shop.add(button_buy_all, BorderLayout.SOUTH);
+			JButton button_sell_all = new JButton("Sell All");
+			button_buy_all.addActionListener(new BuyActionListener());
+			button_sell_all.addActionListener(new SellActionListener());
+			panel_buttons_all.add(button_sell_all);
+			panel_buttons_all.add(button_buy_all);
+
+			panel_shop.add(panel_buttons_all, BorderLayout.SOUTH);
 
 			frame.getContentPane().add(panel_shop);
 		}
@@ -216,31 +234,9 @@ public class MainWindow {
 		new Controller(this, data).start();
 	}
 
-	private void addSellButtons(final int index, JPanel panel) {
-		{
-			JButton button_sell_resource = new JButton("Sell");
-			button_sell_resource.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					data.sellAll(index);
-					reloadUI();
-				}
-			});
-			panel.add(button_sell_resource);
-		}
-		{
-			JButton button_sell_all_resource = new JButton("Sell All");
-			button_sell_all_resource.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					data.sellAll(index);
-					reloadUI();
-				}
-			});
-			panel.add(button_sell_all_resource);
-		}
-	}
-
+	/**
+	 * RELOAD THE UI, UPDATE ALL THE DESIRED LABELS
+	 */
 	void reloadUI() {
 		City selectedCity = data.getSelCity();
 		if (data.getWarehouseCity() != null)
@@ -248,50 +244,47 @@ public class MainWindow {
 					+ data.getWarehouseCity().name));
 
 		{// PANEL MEANS
-			label_cash.setText(data.getMoneyInt() + "$");
+			label_cash.setText("$ " + String.format("%,d", data.getMoneyInt()));
 			if (data.getDebtInt() > 0)
 				label_debt.setText(data.getDebtInt() + "$ debt");
 			else
 				label_debt.setText("no debts");
-			if (data.getSelCity() != null)
-				for (int i = 0; i < label_resources.length; i++) {
-					int nr = (int) Math.round(data.getSelCity().valueOf(i));
-					label_resources[i].setText("$ " + String.format("%,d", nr));
-					if (nr >= 1000000) {
-						nr = (int) Math.round(nr / 100);
-						label_resources[i].setText("$ "
-								+ String.format("%,d", nr) + " mil");
-					}
 
-				}
+			for (int i = 0; i < label_resource_quantities.length; i++) {
+				label_resource_quantities[i].setText(data.getResourceAmmount(i)
+						+ "");
+			}
 
 			for (int i = 0; i < label_wayfaring.length; i++) {
 				int sums = 0;
 				for (Truck t : data.getTrucksSnapshot()) {
-					sums += t.getAmmounts()[i];
+					if (!t.isSeller())
+						sums += t.getAmmounts()[i];
 				}
 				if (sums > 0) {
 					label_wayfaring[i].setForeground(Color.black);
 					label_wayfaring[i].setText(sums + " "
-							+ Cargo.values()[i].getName() + " travelling");
+							+ Cargo.values()[i].getName() + " incoming");
 				} else {
 					label_wayfaring[i].setForeground(Color.gray);
 					label_wayfaring[i].setText("no "
-							+ Cargo.values()[i].getName() + " travelling");
+							+ Cargo.values()[i].getName() + " incoming");
 				}
 			}
 		}
+
 		{// PANEL SHOP
 			panel_shop = new JPanel();
-			if (selectedCity != null) {
+
+			if (data.getSelCity() != null) {
 				label_cityname.setText(selectedCity.name);
-				// for (int i = 0; i < buttons_buy.length; i++) {
-				// buttons_buy[i].setVisible(true);
-				// }
-				// } else {
-				// for (int i = 0; i < buttons_buy.length; i++) {
-				// buttons_buy[i].setVisible(false);
-				// }
+
+				for (int i = 0; i < label_resource_quantities.length; i++) {
+
+					int nr = (int) Math.round(data.getSelCity().priceOf(i));
+					label_resource_prices[i].setText("$ "
+							+ String.format("%,d", nr));
+				}
 			}
 		}
 
@@ -328,48 +321,95 @@ public class MainWindow {
 			index = i;
 		}
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-
-			int[] ammounts = new int[Cargo.values().length];
-			ammounts[index] = (Integer) spinners[index].getValue();
-
-			if (ammounts[index] > 0)
-				if (data.getSelCity() == data.getWarehouseCity()) {
-					data.addResources(ammounts);
-				} else {
-					Truck c = new Truck(ammounts, data.getSelCity(),
-							data.getWarehouseCity());
-					data.addTruck(c);
-				}
-			reloadUI();
+		public BuyActionListener() {
+			index = -1;
 		}
-	};
 
-	class BuyAllActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 
 			int[] ammounts = new int[Cargo.values().length];
-			int sum = 0;
-			for (int i = 0; i < ammounts.length; i++) {
-				ammounts[i] = (Integer) spinners[i].getValue();
-				sum += ammounts[i];
+			int sum;
+
+			if (index < 0) {
+				sum = getSpinnerValues(ammounts);
+			} else {
+				zeroFill(ammounts);
+				sum = ammounts[index] = (Integer) spinners[index].getValue();
 			}
 
-			if (sum > 0)
-				if (data.getSelCity() == data.getWarehouseCity()) {
-					data.addResources(ammounts);
-				} else {
-					Truck c = new Truck(ammounts, data.getSelCity(),
-							data.getWarehouseCity());
-					data.addTruck(c);
+			if (data.getSelCity() != null)
+				if (sum > 0) {
+					int totalPrice = calculatePrice(ammounts, data.getSelCity()
+							.getCurrentPrices());
+					if (data.getMoney() > totalPrice) {
+
+						if (data.getSelCity() == data.getWarehouseCity()) {
+							data.addResources(ammounts);
+							data.addMoney(-totalPrice);
+						} else {
+							double tripPrice = data.getTripPrice(2,
+									data.getSelCity(), data.getWarehouseCity());
+							System.out.println("trip price from "
+									+ data.getWarehouseCity().name + " to "
+									+ data.getSelCity().name + " is "
+									+ tripPrice);
+							if (data.getMoney() > (totalPrice + tripPrice)) {
+								Truck c = new Truck(ammounts,
+										data.getSelCity(),
+										data.getWarehouseCity());
+								data.addTruck(c);
+								data.addMoney(-totalPrice - tripPrice);
+							}
+						}
+
+					}
+					reloadUI();
 				}
-			reloadUI();
 		}
 	};
 
-	class ZeroActionListener implements ActionListener {
+	private class SellActionListener implements ActionListener {
+		int index;
+
+		public SellActionListener(int i) {
+			index = i;
+		}
+
+		public SellActionListener() {
+			index = -1;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			int sum = 0;
+			int[] ammounts = new int[Cargo.values().length];
+			if (index < 0) {
+				sum = getSpinnerValues(ammounts);
+			} else {
+				zeroFill(ammounts);
+				sum = ammounts[index] = (Integer) spinners[index].getValue();
+			}
+			if (sum > 0) {
+				int totalPrice = calculatePrice(ammounts, data.getSelCity()
+						.getCurrentPrices());
+				if (data.hasResources(ammounts)) {
+					data.addMoney(totalPrice);
+					data.removeResources(ammounts);
+					if (data.getSelCity() == data.getWarehouseCity()) {
+					} else {
+						Truck c = new Truck(ammounts, data.getWarehouseCity(),
+								data.getSelCity(), true);
+						data.addTruck(c);
+					}
+				}
+			}
+			reloadUI();
+		}
+
+	};
+
+	private class ZeroActionListener implements ActionListener {
 		JSpinner spinner;
 
 		public ZeroActionListener(JSpinner s) {
@@ -382,5 +422,35 @@ public class MainWindow {
 			reloadUI();
 		}
 	};
+
+	private int calculatePrice(int[] ammounts, double[] prices) {
+		int sum = 0;
+		if (ammounts.length != prices.length) {
+			throw new IllegalArgumentException(
+					"the arrays dont have the same length");
+		}
+		for (int i = 0; i < prices.length; i++) {
+			sum += ammounts[i] * prices[i];
+		}
+		return sum;
+	}
+
+	/**
+	 * Puts spinner values in the param 'ammounts' and returns its sum
+	 */
+	private int getSpinnerValues(int[] ammounts) {
+		int sum = 0;
+		for (int i = 0; i < ammounts.length; i++) {
+			ammounts[i] = (Integer) spinners[i].getValue();
+			sum += ammounts[i];
+		}
+		return sum;
+	}
+
+	private void zeroFill(int[] array) {
+		for (int i = 0; i < array.length; i++) {
+			array[i] = 0;
+		}
+	}
 
 }

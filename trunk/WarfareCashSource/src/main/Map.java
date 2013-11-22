@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Polygon;
@@ -86,17 +87,26 @@ public class Map extends JPanel {
 	public void updateMap(Graphics g) {
 		ArrayList<City> cities = data.getCitiesSnapshot();
 		for (City c : cities) {
+			g.setFont(new Font(null, Font.PLAIN, 11));
+			
+			if (data.getSelCity() != null
+					&& c.name.equals(data.getSelCity().name)) {
+				g.setColor(new Color(0.2f, 0.2f, 0.2f, 0.5f));
+				g.drawRect(c.x - 4, c.y - 4, 7, 7);
+			}
 			if (data.getWarehouseCity() != null
 					&& c.name.equals(data.getWarehouseCity().name)) {
+				g.setFont(new Font(null, Font.BOLD, 12));
 				g.setColor(new Color(0.5f, 1f, 0.5f, 0.5f));
 				g.fillRect(c.x - 3, c.y - 3, 6, 6);
 			} else {
+
 				g.setColor(new Color(1f, 1f, 1f, 0.5f));
 				g.fillRect(c.x - 2, c.y - 2, 4, 4);
 			}
 			if (showNames) {
 				g.setColor(new Color(0f, 0f, 0f, 0.5f));
-				g.drawString(c.name, c.x - 20, c.y + 12);
+				g.drawString(c.name, c.x - (int)(3.5*c.name.length()), c.y + 14);
 			}
 		}
 

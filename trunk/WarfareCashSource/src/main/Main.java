@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
@@ -29,8 +30,6 @@ public class Main {
 
 	public static void main(String[] args) {
 		new Main();
-		// new
-		// Level("Atomic_Wastelands: Gor-10000-0,0 Far-5000-2,3 Dur-2000-0,5");
 	}
 
 	private JFrame frame;
