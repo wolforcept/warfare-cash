@@ -1,12 +1,13 @@
-package main;
+package data;
+
+import java.util.LinkedList;
 
 public class City {
 
-	String name;
-	int x, y, nr;
+	private String name;
+	private int x, y, nr;
 	private double[] currentPrices;
-
-	// boolean hazerded;
+	private LinkedList<Product> products;
 
 	public City(String name, int x, int y, int nr) {
 		this.x = x;
@@ -21,20 +22,42 @@ public class City {
 			currentPrices[i] = Cargo.values()[i].getMin() + Math.random()
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
+
+		products = new LinkedList<Product>();
 	}
+
+	/*
+	 * GETTERS
+	 */
+
+	public double getPrice(int index) {
+		return currentPrices[index];
+	}
+
+	public double[] getCurrentPrices() {
+		return currentPrices;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	/*
+	 * ACTIONS
+	 */
 
 	public void updatePrices() {
 		for (int i = 0; i < currentPrices.length; i++) {
 			currentPrices[i] = Cargo.values()[i].getMin() + Math.random()
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
-	}
-
-	public double priceOf(int index) {
-		return currentPrices[index];
-	}
-
-	public double[] getCurrentPrices() {
-		return currentPrices;
 	}
 }

@@ -1,4 +1,5 @@
-package main;
+package data;
+
 
 public class Truck {
 	private int[] ammounts;
