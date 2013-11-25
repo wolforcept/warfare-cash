@@ -30,8 +30,9 @@ public class Data {
 	private Level level;
 
 	private double multiplier;
+	private Wife wife;
 
-	public Data(Level level) {
+	public Data(Level level, StuffType[] stuffs) {
 		money = 999999;
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
@@ -42,6 +43,8 @@ public class Data {
 		wars = new LinkedList<War>();
 
 		multiplier = 0.5;
+
+		wife = new Wife(stuffs);
 
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
@@ -282,6 +285,10 @@ public class Data {
 			break;
 
 		}
+	}
+
+	public Wife getWife() {
+		return wife;
 	}
 
 	enum Hazard {
