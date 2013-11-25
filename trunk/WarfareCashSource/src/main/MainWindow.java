@@ -34,9 +34,9 @@ public class MainWindow {
 
 	private Data data;
 
-	public MainWindow(Level level) {
+	public MainWindow(Level level, StuffType[] stuffTypes) {
 
-		data = new Data(level);
+		data = new Data(level, stuffTypes);
 
 		frame = new JFrame();
 		frame.getContentPane().setLayout(new GridLayout(2, 2));

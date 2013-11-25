@@ -63,7 +63,8 @@ public class Main {
 				JButton button_start = new JButton(BUTTONS[0]);
 				button_start.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						new MainWindow((Level) list_levels.getSelectedValue());
+						new MainWindow((Level) list_levels.getSelectedValue(),
+								readStuff());
 						frame.setVisible(false);
 						frame.dispose();
 						System.gc();
@@ -117,5 +118,20 @@ public class Main {
 		scanner.close();
 
 		return levels.toArray(new Level[levels.size()]);
+	}
+
+	private StuffType[] readStuff() {
+		InputStream stuff_input = getClass().getResourceAsStream(
+				"/resources/stufftypes");
+		Scanner scanner = new Scanner(stuff_input);
+
+		LinkedList<StuffType> stuffTypes = new LinkedList<StuffType>();
+		while (scanner.hasNext()) {
+			stuffTypes.add(new StuffType(scanner.nextLine()));
+		}
+
+		scanner.close();
+
+		return stuffTypes.toArray(new StuffType[stuffTypes.size()]);
 	}
 }
