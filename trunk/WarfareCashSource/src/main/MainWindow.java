@@ -22,7 +22,7 @@ public class MainWindow {
 
 	// SWING
 	private JFrame frame;
-	private JLabel label_cash, label_debt, label_cityname;
+	private JLabel label_cash, label_debt, label_cityname, label_citycost;
 
 	private JLabel[] label_resource_quantities, label_resource_prices,
 			label_wayfaring;
@@ -30,8 +30,7 @@ public class MainWindow {
 
 	private JPanel panel_means, panel_, panel_shop;
 	private Map panel_map;
-	private JButton[] buttons_buy;
-	//
+
 	private Data data;
 
 	public MainWindow(Level level) {
@@ -40,7 +39,7 @@ public class MainWindow {
 
 		frame = new JFrame();
 		frame.getContentPane().setLayout(new GridLayout(2, 2));
-		// frame.setResizable(false);
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		{// PANEL MEANS
@@ -148,30 +147,49 @@ public class MainWindow {
 		{// PANEL SHOP
 			panel_shop = new JPanel();
 			panel_shop.setLayout(new BorderLayout());
-			label_cityname = new JLabel("no city selected");
+
+			JPanel panel_labels_top = new JPanel();
+			panel_labels_top.setLayout(new GridLayout(1, 2));
+
+			label_cityname = new JLabel("no city selected", JLabel.CENTER);
 			label_cityname.setFont(new Font(null, Font.BOLD, 18));
-			panel_shop.add(label_cityname, BorderLayout.NORTH);
+
+			label_citycost = new JLabel();
+			label_citycost.setFont(new Font(null, Font.PLAIN, 12));
+
+			panel_labels_top.add(label_cityname);
+			panel_labels_top.add(label_citycost);
+
+			panel_shop.add(panel_labels_top, BorderLayout.NORTH);
 
 			JPanel panel_resources = new JPanel();
 			panel_resources.setBorder(BorderFactory.createTitledBorder("Shop"));
 			panel_resources.setLayout(new GridLayout(Cargo.values().length, 1));
 
-			buttons_buy = new JButton[Cargo.values().length];
 			label_resource_prices = new JLabel[Cargo.values().length];
 			spinners = new JSpinner[Cargo.values().length];
 			for (int i = 0; i < Cargo.values().length; i++) {
 
 				JPanel panel_cargo_private = new JPanel();
-				panel_cargo_private.setLayout(new GridLayout(1, 1));
+				panel_cargo_private.setLayout(new GridLayout(2, 1));
 
 				// TOP
+				JPanel panel_cargo_private_b = new JPanel();
+				JLabel label_cargo_name = new JLabel(
+						Cargo.values()[i].getName(), JLabel.CENTER);
+//				label_cargo_name.setPreferredSize(new Dimension(20, 20));
+				panel_cargo_private_b
+						.add(label_cargo_name, BorderLayout.CENTER);
+
+				label_resource_prices[i] = new JLabel();
+				panel_cargo_private_b.add(label_resource_prices[i]);
+
+				panel_cargo_private.add(panel_cargo_private_b);
+
+				// BOTTOM
 				JPanel panel_cargo_private_top = new JPanel();
 				panel_cargo_private_top.setLayout(new BorderLayout());
 				panel_cargo_private.add(panel_cargo_private_top);
-
-				panel_cargo_private_top.add(
-						new JLabel(Cargo.values()[i].getName(), JLabel.CENTER),
-						BorderLayout.CENTER);
 
 				JPanel panel_cargo_private_top_east = new JPanel();
 				panel_cargo_private_top_east.setLayout(new FlowLayout());
@@ -180,34 +198,24 @@ public class MainWindow {
 				panel_cargo_private_top_east
 						.add(spinners[i], BorderLayout.EAST);
 
-				buttons_buy[i] = new JButton("Buy");
-				buttons_buy[i].addActionListener(new BuyActionListener(i));
-				panel_cargo_private_top_east.add(buttons_buy[i]);
+				JButton button_zero = new JButton("0");
+				button_zero.setPreferredSize(new Dimension(45, 20));
+				button_zero.addActionListener(new ZeroActionListener(i));
+				panel_cargo_private_top_east.add(button_zero);
+
+				JButton buttons_buy = new JButton("Buy");
+				buttons_buy.setPreferredSize(new Dimension(65, 20));
+				buttons_buy.addActionListener(new BuyActionListener(i));
+				panel_cargo_private_top_east.add(buttons_buy);
 
 				JButton button_sell = new JButton("Sell");
+				button_sell.setPreferredSize(new Dimension(65, 20));
 				button_sell.addActionListener(new SellActionListener(i));
 				panel_cargo_private_top_east.add(button_sell);
 
 				panel_cargo_private_top.add(panel_cargo_private_top_east,
 						BorderLayout.EAST);
 
-				// BOTTOM
-				label_resource_prices[i] = new JLabel();
-				panel_cargo_private_top.add(label_resource_prices[i],
-						BorderLayout.WEST);
-
-				// // BOTTOM
-				// JButton button_zero = new JButton("0");
-				// button_zero.setPreferredSize(new Dimension(45, 20));
-				// button_zero.addActionListener(new ZeroActionListener(
-				// spinners[i]));
-				// panel_cargo_private_top_east.add(button_zero);
-				// JPanel panel_cargo_private_bottom = new JPanel();
-				// panel_cargo_private_bottom.setLayout(new BorderLayout());
-				// panel_cargo_private.add(panel_cargo_private_bottom);
-				//
-				// panel_cargo_private_bottom.add(new JLabel("p",
-				// JLabel.CENTER));
 				panel_resources.add(panel_cargo_private);
 			}
 
@@ -278,6 +286,9 @@ public class MainWindow {
 
 			if (data.getSelCity() != null) {
 				label_cityname.setText(selectedCity.name);
+				label_citycost.setText(" trip cost: $ "
+						+ (int) data.getTripPrice(data.getSelCity(),
+								data.getWarehouseCity()));
 
 				for (int i = 0; i < label_resource_quantities.length; i++) {
 
@@ -348,7 +359,7 @@ public class MainWindow {
 							data.addResources(ammounts);
 							data.addMoney(-totalPrice);
 						} else {
-							double tripPrice = data.getTripPrice(2,
+							double tripPrice = data.getTripPrice(
 									data.getSelCity(), data.getWarehouseCity());
 							System.out.println("trip price from "
 									+ data.getWarehouseCity().name + " to "
@@ -390,7 +401,7 @@ public class MainWindow {
 				zeroFill(ammounts);
 				sum = ammounts[index] = (Integer) spinners[index].getValue();
 			}
-			if (sum > 0) {
+			if (sum > 0 && data.getSelCity() != null) {
 				int totalPrice = calculatePrice(ammounts, data.getSelCity()
 						.getCurrentPrices());
 				if (data.hasResources(ammounts)) {
@@ -410,15 +421,15 @@ public class MainWindow {
 	};
 
 	private class ZeroActionListener implements ActionListener {
-		JSpinner spinner;
+		int index;
 
-		public ZeroActionListener(JSpinner s) {
-			spinner = s;
+		public ZeroActionListener(int i) {
+			index = i;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			spinner.setValue(0);
+			spinners[index].setValue(0);
 			reloadUI();
 		}
 	};
