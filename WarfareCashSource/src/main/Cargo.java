@@ -4,7 +4,7 @@ public enum Cargo {
 	FIRE_WEAPONS("Fire Weapons", 5, 50), //
 	WAR_MACHINES("War Machines", 60, 600), //
 	CHEMICAL_WEAPONS("Chemical Weapons", 400, 4000), //
-	BIOWEAPONS("Bio Agents", 800, 8000), //
+//	BIOWEAPONS("Bio Agents", 800, 8000), //
 	NUCLEAR_WARHEADS("Nuclear Warheads", 1000, 10000); //
 
 	private String name;
