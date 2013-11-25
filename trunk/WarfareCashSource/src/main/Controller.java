@@ -2,8 +2,6 @@ package main;
 
 import java.util.LinkedList;
 
-import main.Truck;
-
 public class Controller extends Thread {
 
 	private Data data;
@@ -13,7 +11,21 @@ public class Controller extends Thread {
 	public Controller(MainWindow mainWindow, Data data) {
 		this.data = data;
 		this.window = mainWindow;
-		war_cooldown = war_max_cooldown = 100;
+		war_cooldown = war_max_cooldown = Data.WAR_COOLDOWN;
+
+		new Thread() {
+			public void run() {
+				try {
+					while (true) {
+						window.reloadUI();
+						sleep(50);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			};
+		}.start();
 	}
 
 	@Override
@@ -26,17 +38,13 @@ public class Controller extends Thread {
 					for (Truck truck : trucks) {
 						truck.approach();
 					}
-					window.reloadUI();
 				}
 
-				data.increaseDebts();
 				if (Math.random() < data.getHazardRisk()) {
-					data.hazardCity();
+					data.hazard(Data.Hazard.getRandom());
 				}
 
-				if (data.releaseTrucks()) {
-					window.reloadUI();
-				}
+				data.releaseTrucks();
 
 				if (war_cooldown > 0) {
 					war_cooldown--;
@@ -46,6 +54,9 @@ public class Controller extends Thread {
 				}
 				data.stepWars();
 
+				data.step();
+
+				window.reloadUI();
 				sleep(1000);
 
 			}

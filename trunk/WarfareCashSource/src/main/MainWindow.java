@@ -6,11 +6,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,11 +16,14 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import main.MyButton.MyAction;
+
 public class MainWindow {
 
 	// SWING
 	private JFrame frame;
-	private JLabel label_cash, label_debt, label_cityname, label_citycost;
+	private JLabel label_cash, label_debt, label_cityname, label_citycost,
+			label_day_number;
 
 	private JLabel[] label_resource_quantities, label_resource_prices,
 			label_wayfaring;
@@ -55,23 +56,36 @@ public class MainWindow {
 			label_debt = new JLabel();
 			panel_means_money.add(label_debt);
 
-			JButton button_loan = new JButton("Loan");
-			button_loan.addActionListener(new ActionListener() {
+			MyButton button_loan = new MyButton("Loan", 20, 20);
+			button_loan.addAction(new MyAction() {
 				@Override
-				public void actionPerformed(ActionEvent arg0) {
+				public void perform() {
 					String answer = JOptionPane.showInputDialog(null,
 							"How much do you want to ask");
 					if (isNumeric(answer)) {
 						int ammount = Integer.parseInt(answer);
-						double interest = 0.0005;
-						if (ammount >= data.getMoneyInt()) {
-							interest = 0.002;
-						}
-						if (0 == JOptionPane.showConfirmDialog(null,
-								"Do you agree with a " + interest * 100
-										+ "% interest?")) {
+
+						double of = 0.5 * ammount / data.getMoney();
+						double interest = Math.min(0.5, of);
+
+						double temp = interest * 100;
+						interest = temp < 0.01 ? 0 : temp;
+
+						DecimalFormat df = new DecimalFormat("#.###");
+						String show = df.format(interest);
+						System.out.println(interest + " interest, show: "
+								+ show);
+
+						String string = "Do you agree with a " + show
+								+ "% interest?";
+						if (interest > 0) {
+							if (0 == JOptionPane
+									.showConfirmDialog(null, string)) {
+								data.loan(ammount, interest);
+							}
+						} else
 							data.loan(ammount, interest);
-						}
+
 					}
 					reloadUI();
 				}
@@ -81,6 +95,9 @@ public class MainWindow {
 			panel_means.add(panel_means_money, BorderLayout.NORTH);
 
 			{
+				JPanel panel_means_main = new JPanel();
+				panel_means_main.setLayout(new BorderLayout());
+
 				JPanel panel_resources = new JPanel();
 				panel_resources.setBorder(BorderFactory
 						.createTitledBorder("Warehouse"));
@@ -90,16 +107,33 @@ public class MainWindow {
 				label_resource_quantities = new JLabel[Cargo.values().length];
 				for (int i = 0; i < Cargo.values().length; i++) {
 					JPanel panel_private_resource = new JPanel();
-					panel_private_resource.setLayout(new GridLayout(1, 2));
+					panel_private_resource.setLayout(new BorderLayout());
 					JLabel label_resource_name = new JLabel(
 							Cargo.values()[i].getName() + ":  ", JLabel.RIGHT);
 
 					label_resource_quantities[i] = new JLabel();
-					panel_resources.add(label_resource_name);
-					panel_resources.add(label_resource_quantities[i]);
+					label_resource_quantities[i]
+							.setPreferredSize(new Dimension(80, 20));
+					panel_private_resource.add(label_resource_name,
+							BorderLayout.CENTER);
+					panel_private_resource.add(label_resource_quantities[i],
+							BorderLayout.EAST);
+					panel_resources.add(panel_private_resource);
 				}
 
-				panel_means.add(panel_resources, BorderLayout.CENTER);
+				panel_means_main.add(panel_resources, BorderLayout.CENTER);
+
+				JPanel panel_day_settings = new JPanel();
+				panel_day_settings.setLayout(new BorderLayout());
+
+				label_day_number = new JLabel("day 0");
+				panel_day_settings.add(new DayCyclePanel(data),
+						BorderLayout.CENTER);
+				panel_day_settings.add(label_day_number, BorderLayout.NORTH);
+
+				panel_means_main.add(panel_day_settings, BorderLayout.EAST);
+
+				panel_means.add(panel_means_main);
 			}
 
 			{
@@ -131,11 +165,10 @@ public class MainWindow {
 			panel_ = new JPanel();
 			panel_.add(new JLabel("x will be here"));
 
-			JButton button_hazard = new JButton("HAZARD!");
-			button_hazard.addActionListener(new ActionListener() {
+			MyButton button_hazard = new MyButton("HAZARD!", 20, 20);
+			button_hazard.addAction(new MyAction() {
 				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					data.hazardCity();
+				public void perform() {
 					reloadUI();
 				}
 			});
@@ -175,9 +208,10 @@ public class MainWindow {
 
 				// TOP
 				JPanel panel_cargo_private_b = new JPanel();
+				panel_cargo_private_b.setLayout(new GridLayout(1, 2));
 				JLabel label_cargo_name = new JLabel(
 						Cargo.values()[i].getName(), JLabel.CENTER);
-//				label_cargo_name.setPreferredSize(new Dimension(20, 20));
+				label_cargo_name.setPreferredSize(new Dimension(100, 20));
 				panel_cargo_private_b
 						.add(label_cargo_name, BorderLayout.CENTER);
 
@@ -193,24 +227,30 @@ public class MainWindow {
 
 				JPanel panel_cargo_private_top_east = new JPanel();
 				panel_cargo_private_top_east.setLayout(new FlowLayout());
+
+				MyButton button_zero = new MyButton("0", 19, 20);
+				button_zero.setPreferredSize(new Dimension(45, 20));
+				button_zero.addAction(new Action_setzero(i));
+				panel_cargo_private_top_east.add(button_zero);
+
 				spinners[i] = new JSpinner(getSpinnerModel());
 				spinners[i].setPreferredSize(new Dimension(60, 20));
 				panel_cargo_private_top_east
 						.add(spinners[i], BorderLayout.EAST);
 
-				JButton button_zero = new JButton("0");
-				button_zero.setPreferredSize(new Dimension(45, 20));
-				button_zero.addActionListener(new ZeroActionListener(i));
-				panel_cargo_private_top_east.add(button_zero);
+				MyButton button_max = new MyButton("max", 40, 20);
+				button_max.setPreferredSize(new Dimension(65, 20));
+				button_max.addAction(new Action_setmax(i));
+				panel_cargo_private_top_east.add(button_max);
 
-				JButton buttons_buy = new JButton("Buy");
+				MyButton buttons_buy = new MyButton("Buy", 38, 20);
 				buttons_buy.setPreferredSize(new Dimension(65, 20));
-				buttons_buy.addActionListener(new BuyActionListener(i));
+				buttons_buy.addAction(new Action_buy(i));
 				panel_cargo_private_top_east.add(buttons_buy);
 
-				JButton button_sell = new JButton("Sell");
+				MyButton button_sell = new MyButton("Sell", 38, 20);
 				button_sell.setPreferredSize(new Dimension(65, 20));
-				button_sell.addActionListener(new SellActionListener(i));
+				button_sell.addAction(new Action_sell(i));
 				panel_cargo_private_top_east.add(button_sell);
 
 				panel_cargo_private_top.add(panel_cargo_private_top_east,
@@ -223,10 +263,10 @@ public class MainWindow {
 
 			JPanel panel_buttons_all = new JPanel();
 			panel_buttons_all.setLayout(new GridLayout(1, 2));
-			JButton button_buy_all = new JButton("Buy All");
-			JButton button_sell_all = new JButton("Sell All");
-			button_buy_all.addActionListener(new BuyActionListener());
-			button_sell_all.addActionListener(new SellActionListener());
+			MyButton button_buy_all = new MyButton("Buy All", 50, 20);
+			MyButton button_sell_all = new MyButton("Sell All", 50, 20);
+			button_buy_all.addAction(new Action_buy());
+			button_sell_all.addAction(new Action_sell());
 			panel_buttons_all.add(button_sell_all);
 			panel_buttons_all.add(button_buy_all);
 
@@ -253,6 +293,7 @@ public class MainWindow {
 
 		{// PANEL MEANS
 			label_cash.setText("$ " + String.format("%,d", data.getMoneyInt()));
+			label_day_number.setText("day " + data.getDay());
 			if (data.getDebtInt() > 0)
 				label_debt.setText(data.getDebtInt() + "$ debt");
 			else
@@ -309,7 +350,7 @@ public class MainWindow {
 		}
 		int sz = str.length();
 		for (int i = 0; i < sz; i++) {
-			if (Character.isDigit(str.charAt(i)) == false) {
+			if (!Character.isDigit(str.charAt(i))) {
 				return false;
 			}
 		}
@@ -325,19 +366,19 @@ public class MainWindow {
 		);
 	}
 
-	class BuyActionListener implements ActionListener {
+	class Action_buy implements MyAction {
 		int index;
 
-		public BuyActionListener(int i) {
+		public Action_buy(int i) {
 			index = i;
 		}
 
-		public BuyActionListener() {
+		public Action_buy() {
 			index = -1;
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void perform() {
 
 			int[] ammounts = new int[Cargo.values().length];
 			int sum;
@@ -380,19 +421,19 @@ public class MainWindow {
 		}
 	};
 
-	private class SellActionListener implements ActionListener {
+	private class Action_sell implements MyAction {
 		int index;
 
-		public SellActionListener(int i) {
+		public Action_sell(int i) {
 			index = i;
 		}
 
-		public SellActionListener() {
+		public Action_sell() {
 			index = -1;
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void perform() {
 			int sum = 0;
 			int[] ammounts = new int[Cargo.values().length];
 			if (index < 0) {
@@ -420,16 +461,30 @@ public class MainWindow {
 
 	};
 
-	private class ZeroActionListener implements ActionListener {
+	private class Action_setzero implements MyAction {
 		int index;
 
-		public ZeroActionListener(int i) {
+		public Action_setzero(int i) {
 			index = i;
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void perform() {
 			spinners[index].setValue(0);
+			reloadUI();
+		}
+	};
+
+	private class Action_setmax implements MyAction {
+		int index;
+
+		public Action_setmax(int i) {
+			index = i;
+		}
+
+		@Override
+		public void perform() {
+			spinners[index].setValue(data.getResourceAmmount(index));
 			reloadUI();
 		}
 	};

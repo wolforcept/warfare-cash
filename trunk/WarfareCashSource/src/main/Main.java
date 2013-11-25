@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;

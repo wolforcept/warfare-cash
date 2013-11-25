@@ -8,16 +8,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 public class Data {
 
-	public static final double WAR_CHANCE = 0.01;
+	public static final double WAR_CHANCE = 0.01, INITIAL_HAZARD_RISK = 0.001;
+	public static final int DAY_LENGTH = 100, WAR_COOLDOWN = 100;
 
 	private double money;
 	private LinkedList<Debt> debts;
-	private int selectedCity, warehouseCity;
+	private int selectedCity, warehouseCity, dayCounter, day;
 	private LinkedList<Truck> trucks;
 	private int[] resources;
 
@@ -33,7 +35,9 @@ public class Data {
 		money = 999999;
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
-		hazardRisk = 0.001;
+		hazardRisk = INITIAL_HAZARD_RISK;
+		dayCounter = 0;
+		day = 0;
 
 		wars = new LinkedList<War>();
 
@@ -69,7 +73,7 @@ public class Data {
 	public int getDebtInt() {
 		int debt = 0;
 		for (Debt d : debts) {
-			debt += d.ammount;
+			debt += d.debtValue;
 		}
 		return debt;
 	}
@@ -77,7 +81,6 @@ public class Data {
 	public void loan(int ammount, double interest) {
 		addMoney(ammount);
 		debts.add(new Debt(null, ammount, interest));
-		increaseHazard();
 	}
 
 	public void setWarehouseCity(int warehouseCity) {
@@ -101,13 +104,6 @@ public class Data {
 
 	public void addTruck(Truck truck) {
 		trucks.add(truck);
-		increaseHazard();
-	}
-
-	public void increaseDebts() {
-		for (Debt debt : debts) {
-			debt.increase();
-		}
 	}
 
 	public City getWarehouseCity() {
@@ -116,17 +112,18 @@ public class Data {
 		return getCity(warehouseCity);
 	}
 
-	public boolean releaseTrucks() {
-		boolean any = false;
+	public void releaseTrucks() {
 		for (Iterator<Truck> it = trucks.iterator(); it.hasNext();) {
 			Truck t = (Truck) it.next();
 			if (t.isArrived()) {
 				dumpTruck(t);
 				it.remove();
-				any = true;
 			}
 		}
-		return any;
+	}
+
+	public int getDayCounter() {
+		return dayCounter;
 	}
 
 	private void dumpTruck(Truck t) {
@@ -167,17 +164,18 @@ public class Data {
 	class Debt {
 
 		// private Date expirationDate;
-		private double ammount;
-		private double interest;
+		private double debtValue, interest, initialValue;
 
 		public Debt(Date expirationDate, double ammount, double interest) {
 			// this.expirationDate = expirationDate;
-			this.ammount = ammount;
-			this.interest = interest;
+			this.debtValue = this.initialValue = ammount;
+			this.interest = interest / 100;
+			System.out.println("Created debt of " + ammount + " increasing "
+					+ interest);
 		}
 
 		public void increase() {
-			ammount *= 1 + interest;
+			debtValue += initialValue * interest;
 		}
 	}
 
@@ -195,14 +193,6 @@ public class Data {
 
 	public double getHazardRisk() {
 		return hazardRisk;
-	}
-
-	private void increaseHazard() {
-		hazardRisk *= 1.01;
-	}
-
-	public void hazardCity() {
-		// level.removeCity();
 	}
 
 	public void sellAll(int i) {
@@ -247,6 +237,59 @@ public class Data {
 			if (war.stepAndTryEnd()) {
 
 			}
+		}
+	}
+
+	public int getLoanTotal() {
+		int total = 0;
+		for (Debt d : debts) {
+			total += d.debtValue;
+		}
+		return total;
+	}
+
+	public boolean step() {
+
+		dayCounter++;
+
+		if (dayCounter >= DAY_LENGTH) {
+			nextDay();
+			dayCounter = 0;
+			return true;
+		}
+		return false;
+	}
+
+	private void nextDay() {
+		day++;
+		ArrayList<City> cities = getCitiesSnapshot();
+		for (City city : cities) {
+			city.updatePrices();
+		}
+		for (Debt d : debts) {
+			d.increase();
+		}
+	}
+
+	public int getDay() {
+		return day;
+	}
+
+	public void hazard(Hazard h) {
+		switch (h) {
+		case WIFE_DIVORCE:
+
+			break;
+
+		}
+	}
+
+	enum Hazard {
+		WIFE_DIVORCE;
+
+		public static Hazard getRandom() {
+			Random random = new Random();
+			return values()[random.nextInt(values().length)];
 		}
 	}
 }
