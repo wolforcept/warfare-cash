@@ -8,13 +8,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 public class Data {
 
-	public static final double WAR_CHANCE = 1;
+	public static final double WAR_CHANCE = 0.01;
 
 	private double money;
 	private LinkedList<Debt> debts;
@@ -28,6 +27,8 @@ public class Data {
 	private double hazardRisk;
 	private Level level;
 
+	private double multiplier;
+
 	public Data(Level level) {
 		money = 999999;
 		selectedCity = warehouseCity = -1;
@@ -35,6 +36,8 @@ public class Data {
 		hazardRisk = 0.001;
 
 		wars = new LinkedList<War>();
+
+		multiplier = 0.5;
 
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
@@ -218,8 +221,8 @@ public class Data {
 		return warehouseCity;
 	}
 
-	public double getTripPrice(double Multiplier, City c1, City c2) {
-		return Multiplier * Math.hypot(c1.x - c2.x, c1.y - c2.y);
+	public double getTripPrice(City c1, City c2) {
+		return multiplier * Math.hypot(c1.x - c2.x, c1.y - c2.y);
 	}
 
 	public void startWar() {
@@ -229,7 +232,8 @@ public class Data {
 			c2 = getRandomCity();
 		} while (c2.name.equals(c1.name));
 		wars.add(new War(getRandomCity(), c2));
-
+		System.out
+				.println("a has raged between " + c1.name + " and " + c2.name);
 	}
 
 	private City getRandomCity() {
@@ -241,7 +245,7 @@ public class Data {
 	public void stepWars() {
 		for (War war : wars) {
 			if (war.stepAndTryEnd()) {
-				
+
 			}
 		}
 	}
