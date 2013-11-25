@@ -1,6 +1,7 @@
-package main;
+package data;
 
 import java.util.Random;
+
 
 public class War {
 

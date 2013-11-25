@@ -1,4 +1,4 @@
-package main;
+package swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,7 +16,16 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import main.MyButton.MyAction;
+import swing.MyButton.MyAction;
+
+import data.Cargo;
+import data.City;
+import data.Data;
+import data.Level;
+import data.ProductType;
+import data.Truck;
+
+import main.Controller;
 
 public class MainWindow {
 
@@ -34,7 +43,7 @@ public class MainWindow {
 
 	private Data data;
 
-	public MainWindow(Level level, StuffType[] stuffTypes) {
+	public MainWindow(Level level, ProductType[] stuffTypes) {
 
 		data = new Data(level, stuffTypes);
 
@@ -285,7 +294,7 @@ public class MainWindow {
 	/**
 	 * RELOAD THE UI, UPDATE ALL THE DESIRED LABELS
 	 */
-	void reloadUI() {
+	public void reloadUI() {
 		City selectedCity = data.getSelCity();
 		if (data.getWarehouseCity() != null)
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means at "
@@ -333,7 +342,7 @@ public class MainWindow {
 
 				for (int i = 0; i < label_resource_quantities.length; i++) {
 
-					int nr = (int) Math.round(data.getSelCity().priceOf(i));
+					int nr = (int) Math.round(data.getSelCity().getPrice(i));
 					label_resource_prices[i].setText("$ "
 							+ String.format("%,d", nr));
 				}

@@ -1,4 +1,4 @@
-package main;
+package data;
 
 public enum Cargo {
 	FIRE_WEAPONS("Fire Weapons", 5, 50), //

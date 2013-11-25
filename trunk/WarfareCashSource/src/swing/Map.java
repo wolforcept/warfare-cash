@@ -1,4 +1,4 @@
-package main;
+package swing;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -12,6 +12,11 @@ import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+
+import data.City;
+import data.Data;
+import data.Truck;
 
 public class Map extends JPanel {
 

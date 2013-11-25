@@ -2,6 +2,11 @@ package main;
 
 import java.util.LinkedList;
 
+import swing.MainWindow;
+
+import data.Data;
+import data.Truck;
+
 public class Controller extends Thread {
 
 	private Data data;

@@ -1,9 +1,11 @@
-package main;
+package swing;
 
 import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
+
+import data.Data;
 
 public class DayCyclePanel extends JPanel {
 

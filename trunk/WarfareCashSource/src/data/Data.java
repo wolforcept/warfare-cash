@@ -1,4 +1,4 @@
-package main;
+package data;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class Data {
 	private double multiplier;
 	private Wife wife;
 
-	public Data(Level level, StuffType[] stuffs) {
+	public Data(Level level, ProductType[] stuffs) {
 		money = 999999;
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
@@ -278,15 +278,6 @@ public class Data {
 		return day;
 	}
 
-	public void hazard(Hazard h) {
-		switch (h) {
-		case WIFE_DIVORCE:
-
-			break;
-
-		}
-	}
-
 	public Wife getWife() {
 		return wife;
 	}
@@ -298,5 +289,13 @@ public class Data {
 			Random random = new Random();
 			return values()[random.nextInt(values().length)];
 		}
+	}
+
+	public void makeProductsAvaliable(int stuffClass, int day) {
+
+		/*
+		 * double c = Math.floor(stuffClass * productTypes.length) + (int)
+		 * (Math.random() * 2); max + Math.random() * (max - min)
+		 */
 	}
 }

@@ -1,4 +1,4 @@
-package main;
+package swing;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -15,6 +15,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+
+import data.Level;
+import data.ProductType;
 
 public class Main {
 
@@ -120,18 +124,18 @@ public class Main {
 		return levels.toArray(new Level[levels.size()]);
 	}
 
-	private StuffType[] readStuff() {
+	private ProductType[] readStuff() {
 		InputStream stuff_input = getClass().getResourceAsStream(
 				"/resources/stufftypes");
 		Scanner scanner = new Scanner(stuff_input);
 
-		LinkedList<StuffType> stuffTypes = new LinkedList<StuffType>();
+		LinkedList<ProductType> stuffTypes = new LinkedList<ProductType>();
 		while (scanner.hasNext()) {
-			stuffTypes.add(new StuffType(scanner.nextLine()));
+			stuffTypes.add(new ProductType(scanner.nextLine()));
 		}
 
 		scanner.close();
 
-		return stuffTypes.toArray(new StuffType[stuffTypes.size()]);
+		return stuffTypes.toArray(new ProductType[stuffTypes.size()]);
 	}
 }
