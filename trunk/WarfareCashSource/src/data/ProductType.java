@@ -7,10 +7,12 @@ public class ProductType {
 
 	public ProductType(String input) {
 
-		String[] splits = input.split(",");
+		String[] splits = input.split(" ");
 		name = splits[0];
-		min = Integer.parseInt(splits[1]);
-		max = Integer.parseInt(splits[2]);
+		String[] priceRange = splits[1].split(",");
+		min = Integer.parseInt(priceRange[0]);
+		max = Integer.parseInt(priceRange[1]);
+		
 
 	}
 }

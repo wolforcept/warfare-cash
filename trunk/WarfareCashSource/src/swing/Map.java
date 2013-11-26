@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-
 import data.City;
 import data.Data;
 import data.Truck;
@@ -41,13 +40,14 @@ public class Map extends JPanel {
 				int x = e.getX();
 				int y = e.getY();
 				for (int i = 0; i < data.getNumberOfCities(); i++) {
-					if (Math.hypot(x - data.getCity(i).x, y - data.getCity(i).y) < 10) {
+					if (Math.hypot(x - data.getCity(i).getX(), y
+							- data.getCity(i).getY()) < 10) {
 
 						if (data.getWarehouseCityIndex() == -1) {
 
 							if (0 == JOptionPane.showConfirmDialog(null,
 									"Are you sure you want to build your warehouse in "
-											+ data.getCity(i).name + "?",
+											+ data.getCity(i).getName() + "?",
 									"Your First Warehouse",
 									JOptionPane.YES_NO_OPTION))
 								data.setWarehouseCity(i);
@@ -93,25 +93,26 @@ public class Map extends JPanel {
 		ArrayList<City> cities = data.getCitiesSnapshot();
 		for (City c : cities) {
 			g.setFont(new Font(null, Font.PLAIN, 11));
-			
+
 			if (data.getSelCity() != null
-					&& c.name.equals(data.getSelCity().name)) {
+					&& c.getName().equals(data.getSelCity().getName())) {
 				g.setColor(new Color(0.2f, 0.2f, 0.2f, 0.5f));
-				g.drawRect(c.x - 4, c.y - 4, 7, 7);
+				g.drawRect(c.getX() - 4, c.getY() - 4, 7, 7);
 			}
 			if (data.getWarehouseCity() != null
-					&& c.name.equals(data.getWarehouseCity().name)) {
+					&& c.getName().equals(data.getWarehouseCity().getName())) {
 				g.setFont(new Font(null, Font.BOLD, 12));
 				g.setColor(new Color(0.5f, 1f, 0.5f, 0.5f));
-				g.fillRect(c.x - 3, c.y - 3, 6, 6);
+				g.fillRect(c.getX() - 3, c.getY() - 3, 6, 6);
 			} else {
 
 				g.setColor(new Color(1f, 1f, 1f, 0.5f));
-				g.fillRect(c.x - 2, c.y - 2, 4, 4);
+				g.fillRect(c.getX() - 2, c.getY() - 2, 4, 4);
 			}
 			if (showNames) {
 				g.setColor(new Color(0f, 0f, 0f, 0.5f));
-				g.drawString(c.name, c.x - (int)(3.5*c.name.length()), c.y + 14);
+				g.drawString(c.getName(), c.getX()
+						- (int) (3.5 * c.getName().length()), c.getY() + 14);
 			}
 		}
 

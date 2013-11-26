@@ -1,18 +1,18 @@
 package data;
 
-import java.util.LinkedList;
+import data.enums.Cargo;
 
 public class City {
 
 	private String name;
-	private int x, y, nr;
+	private int x, y, a_nr_with_no_purpose_yet;
 	private double[] currentPrices;
-	private LinkedList<Product> products;
+	private Product[] products;
 
 	public City(String name, int x, int y, int nr) {
 		this.x = x;
 		this.y = y;
-		this.nr = nr;
+		this.a_nr_with_no_purpose_yet = nr;
 		// this.hazarded = false;
 		this.name = name;
 		// System.out.println("   " + name + " " + x + "," + y + " nr:" + nr);
@@ -23,7 +23,7 @@ public class City {
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 
-		products = new LinkedList<Product>();
+		products = new Product[Data.NUMBER_OF_PRODUCTS_AVALIABLE];
 	}
 
 	/*
@@ -50,6 +50,14 @@ public class City {
 		return name;
 	}
 
+	public Product[] getProducts() {
+		return products;
+	}
+
+	public void setProduct(int index, Product p) {
+		this.products[index] = p;
+	}
+
 	/*
 	 * ACTIONS
 	 */
@@ -60,4 +68,11 @@ public class City {
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 	}
+
+	public void updateProducts() {
+		for (int i = 0; i < products.length; i++) {
+			products[i] = new Product("Amostra", 1000, new int[] { 5, 3, 2, 7 });
+		}
+	}
+
 }

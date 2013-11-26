@@ -1,5 +1,6 @@
 package data;
 
+import data.enums.Cargo;
 
 public class Truck {
 	private int[] ammounts;
@@ -15,8 +16,8 @@ public class Truck {
 		this.ammounts = ammount;
 		this.origin = origin;
 		this.destination = destination;
-		x = origin.x;
-		y = origin.y;
+		x = origin.getX();
+		y = origin.getY();
 		arrived = false;
 		this.sell = sell;
 	}
@@ -29,9 +30,9 @@ public class Truck {
 	public void approach() {
 		double speed = Math.random() * 5 + 5;
 		double dir = getDirection();
-		if (Math.hypot(destination.y - y, destination.x - x) < speed) {
-			x = destination.x;
-			y = destination.y;
+		if (Math.hypot(destination.getY() - y, destination.getX() - x) < speed) {
+			x = destination.getX();
+			y = destination.getY();
 			arrived = true;
 		} else {
 
@@ -72,11 +73,12 @@ public class Truck {
 	}
 
 	public double getDistanceLeft() {
-		return Math.hypot(destination.y - y, destination.x - x);
+		return Math.hypot(destination.getY() - y, destination.getX() - x);
 	}
 
 	public float getDirection() {
-		return (float) Math.atan2(destination.y - y, destination.x - x);
+		return (float) Math.atan2(destination.getY() - y, destination.getX()
+				- x);
 	}
 
 	public boolean isSeller() {

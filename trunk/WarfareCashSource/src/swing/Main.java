@@ -16,7 +16,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-
 import data.Level;
 import data.ProductType;
 
@@ -125,9 +124,9 @@ public class Main {
 	}
 
 	private ProductType[] readStuff() {
-		InputStream stuff_input = getClass().getResourceAsStream(
-				"/resources/stufftypes");
-		Scanner scanner = new Scanner(stuff_input);
+		InputStream products_input = getClass().getResourceAsStream(
+				"/resources/producttypes");
+		Scanner scanner = new Scanner(products_input);
 
 		LinkedList<ProductType> stuffTypes = new LinkedList<ProductType>();
 		while (scanner.hasNext()) {
