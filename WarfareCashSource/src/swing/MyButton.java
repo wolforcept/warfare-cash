@@ -13,7 +13,7 @@ public class MyButton extends JComponent implements MouseListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private String str = "null";
+	private String text = "null";
 	private int width, height;
 
 	private MyAction action;
@@ -22,28 +22,32 @@ public class MyButton extends JComponent implements MouseListener {
 
 	public MyButton(String s, int w, int h) {
 		super();
-		str = s;
+		text = s;
 		width = w;
 		height = h;
 		mousein = false;
 
 		enableInputMethods(true);
 		addMouseListener(this);
-
 	}
 
 	@Override
 	public void paint(Graphics g) {
 		g.setFont(new Font(null, Font.BOLD, 12));
 		if (mousein)
-			g.setColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
+			g.setColor(new Color(0f, 0f, 0f, 0.8f));
 		else
 			g.setColor(new Color(0.5f, 0.5f, 0.5f, 1f));
 
 		g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
 
-		g.drawString(str, 5, 14);
+		g.drawString(text, 5, 14);
 		g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	public void addAction(MyAction action) {
@@ -67,7 +71,6 @@ public class MyButton extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-
 	}
 
 	@Override
@@ -82,12 +85,12 @@ public class MyButton extends JComponent implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		action.perform();
+		if (action != null)
+			action.perform();
 	}
 
 	public interface MyAction {

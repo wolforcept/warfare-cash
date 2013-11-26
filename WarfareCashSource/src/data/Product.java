@@ -1,13 +1,27 @@
 package data;
 
-public class Product {
-	double val;
+import data.enums.Stat;
 
-	public Product(int name, int val) {
-		this.val = val;
+public class Product {
+	private double price;
+	private String name;
+	private int[] stats;
+
+	public Product(String name, int price, int[] stats) {
+		this.name = name;
+		this.price = price;
+		this.stats = stats;
 	}
 
-	public double getVal() {
-		return val;
+	public double getPrice() {
+		return price;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getStat(Stat stat) {
+		return stats[stat.ordinal()];
 	}
 }

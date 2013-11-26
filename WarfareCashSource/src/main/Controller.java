@@ -3,18 +3,18 @@ package main;
 import java.util.LinkedList;
 
 import swing.MainWindow;
-
 import data.Data;
+import data.Hazard;
 import data.Truck;
 
 public class Controller extends Thread {
 
-	private Data data;
+	private DataController dataController;
 	private MainWindow window;
 	private int war_cooldown, war_max_cooldown;
 
-	public Controller(MainWindow mainWindow, Data data) {
-		this.data = data;
+	public Controller(MainWindow mainWindow, DataController dataController) {
+		this.dataController = dataController;
 		this.window = mainWindow;
 		war_cooldown = war_max_cooldown = Data.WAR_COOLDOWN;
 
@@ -36,30 +36,32 @@ public class Controller extends Thread {
 	@Override
 	public void run() {
 		try {
+			dataController.nextDay();
 			while (true) {
 
-				LinkedList<Truck> trucks = data.getTrucksSnapshot();
+				LinkedList<Truck> trucks = dataController.getData()
+						.getTrucksSnapshot();
 				if (trucks.size() > 0) {
 					for (Truck truck : trucks) {
 						truck.approach();
 					}
 				}
 
-				if (Math.random() < data.getHazardRisk()) {
-					data.hazard(Data.Hazard.getRandom());
+				if (Math.random() < dataController.getData().getHazardRisk()) {
+					dataController.hazard(Hazard.getRandom());
 				}
 
-				data.releaseTrucks();
+				dataController.releaseTrucks();
 
 				if (war_cooldown > 0) {
 					war_cooldown--;
 				} else if (Math.random() < Data.WAR_CHANCE) {
-					data.startWar();
+					dataController.startWar();
 					war_cooldown = war_max_cooldown;
 				}
-				data.stepWars();
+				dataController.stepWars();
 
-				data.step();
+				dataController.step();
 
 				window.reloadUI();
 				sleep(1000);

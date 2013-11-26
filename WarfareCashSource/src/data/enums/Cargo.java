@@ -1,4 +1,4 @@
-package data;
+package data.enums;
 
 public enum Cargo {
 	FIRE_WEAPONS("Fire Weapons", 5, 50), //

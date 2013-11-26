@@ -2,6 +2,7 @@ package swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -16,16 +17,16 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import main.Controller;
+import main.DataController;
 import swing.MyButton.MyAction;
-
-import data.Cargo;
 import data.City;
 import data.Data;
 import data.Level;
+import data.Product;
 import data.ProductType;
 import data.Truck;
-
-import main.Controller;
+import data.enums.Cargo;
 
 public class MainWindow {
 
@@ -38,14 +39,17 @@ public class MainWindow {
 			label_wayfaring;
 	private JSpinner[] spinners;
 
-	private JPanel panel_means, panel_, panel_shop;
+	private JPanel panel_means, panel_wife, panel_shop, panel_products;
 	private Map panel_map;
 
 	private Data data;
+	private DataController dataController;
+	private ProductBox[] productBoxes;
 
 	public MainWindow(Level level, ProductType[] stuffTypes) {
 
 		data = new Data(level, stuffTypes);
+		dataController = new DataController(data);
 
 		frame = new JFrame();
 		frame.getContentPane().setLayout(new GridLayout(2, 2));
@@ -90,10 +94,10 @@ public class MainWindow {
 						if (interest > 0) {
 							if (0 == JOptionPane
 									.showConfirmDialog(null, string)) {
-								data.loan(ammount, interest);
+								dataController.loan(ammount, interest);
 							}
 						} else
-							data.loan(ammount, interest);
+							dataController.loan(ammount, interest);
 
 					}
 					reloadUI();
@@ -170,20 +174,26 @@ public class MainWindow {
 			frame.getContentPane().add(panel_map);
 		}
 
-		{// PANEL
-			panel_ = new JPanel();
-			panel_.add(new JLabel("x will be here"));
+		{// PANEL WIFE
+			panel_wife = new JPanel();
+			panel_wife.setLayout(new BorderLayout());
 
-			MyButton button_hazard = new MyButton("HAZARD!", 20, 20);
-			button_hazard.addAction(new MyAction() {
-				@Override
-				public void perform() {
-					reloadUI();
-				}
-			});
-			panel_.add(button_hazard);
+			JLabel label_wife = new JLabel("Wife");
+			panel_wife.add(label_wife, BorderLayout.NORTH);
 
-			frame.getContentPane().add(panel_);
+			productBoxes = new ProductBox[Data.NUMBER_OF_PRODUCTS_AVALIABLE];
+
+			panel_products = new JPanel();
+			panel_products.setLayout(new GridLayout(
+					Data.NUMBER_OF_PRODUCTS_AVALIABLE, 1));
+			for (int i = 0; i < Data.NUMBER_OF_PRODUCTS_AVALIABLE; i++) {
+				productBoxes[i] = new ProductBox(false);
+				panel_products.add(productBoxes[i]);
+			}
+
+			panel_wife.add(panel_products, BorderLayout.CENTER);
+
+			frame.getContentPane().add(panel_wife);
 		}
 
 		{// PANEL SHOP
@@ -288,7 +298,7 @@ public class MainWindow {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		reloadUI();
-		new Controller(this, data).start();
+		new Controller(this, dataController).start();
 	}
 
 	/**
@@ -298,7 +308,7 @@ public class MainWindow {
 		City selectedCity = data.getSelCity();
 		if (data.getWarehouseCity() != null)
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means at "
-					+ data.getWarehouseCity().name));
+					+ data.getWarehouseCity().getName()));
 
 		{// PANEL MEANS
 			label_cash.setText("$ " + String.format("%,d", data.getMoneyInt()));
@@ -331,11 +341,20 @@ public class MainWindow {
 			}
 		}
 
+		{// PANEL WIFE
+			if (data.getSelCity() != null) {
+				for (int i = 0; i < productBoxes.length; i++) {
+					productBoxes[i].setProduct(data.getWarehouseCity()
+							.getProducts()[i], 50, 50);
+				}
+			}
+		}
+
 		{// PANEL SHOP
 			panel_shop = new JPanel();
 
 			if (data.getSelCity() != null) {
-				label_cityname.setText(selectedCity.name);
+				label_cityname.setText(data.getSelCity().getName());
 				label_citycost.setText(" trip cost: $ "
 						+ (int) data.getTripPrice(data.getSelCity(),
 								data.getWarehouseCity()));
@@ -353,8 +372,20 @@ public class MainWindow {
 
 	}
 
+	/**
+	 * Puts spinner values in the param 'ammounts' and returns its sum
+	 */
+	private int getSpinnerValues(int[] ammounts) {
+		int sum = 0;
+		for (int i = 0; i < ammounts.length; i++) {
+			ammounts[i] = (Integer) spinners[i].getValue();
+			sum += ammounts[i];
+		}
+		return sum;
+	}
+
 	private boolean isNumeric(String str) {
-		if (str == null) {
+		if (str == null || str.length() == 0) {
 			return false;
 		}
 		int sz = str.length();
@@ -373,6 +404,24 @@ public class MainWindow {
 				new Integer(999999), // max
 				new Integer(1) // step
 		);
+	}
+
+	private int calculatePrice(int[] ammounts, double[] prices) {
+		int sum = 0;
+		if (ammounts.length != prices.length) {
+			throw new IllegalArgumentException(
+					"the arrays dont have the same length");
+		}
+		for (int i = 0; i < prices.length; i++) {
+			sum += ammounts[i] * prices[i];
+		}
+		return sum;
+	}
+
+	private void zeroFill(int[] array) {
+		for (int i = 0; i < array.length; i++) {
+			array[i] = 0;
+		}
 	}
 
 	class Action_buy implements MyAction {
@@ -412,9 +461,9 @@ public class MainWindow {
 							double tripPrice = data.getTripPrice(
 									data.getSelCity(), data.getWarehouseCity());
 							System.out.println("trip price from "
-									+ data.getWarehouseCity().name + " to "
-									+ data.getSelCity().name + " is "
-									+ tripPrice);
+									+ data.getWarehouseCity().getName()
+									+ " to " + data.getSelCity().getName()
+									+ " is " + tripPrice);
 							if (data.getMoney() > (totalPrice + tripPrice)) {
 								Truck c = new Truck(ammounts,
 										data.getSelCity(),
@@ -495,36 +544,6 @@ public class MainWindow {
 		public void perform() {
 			spinners[index].setValue(data.getResourceAmmount(index));
 			reloadUI();
-		}
-	};
-
-	private int calculatePrice(int[] ammounts, double[] prices) {
-		int sum = 0;
-		if (ammounts.length != prices.length) {
-			throw new IllegalArgumentException(
-					"the arrays dont have the same length");
-		}
-		for (int i = 0; i < prices.length; i++) {
-			sum += ammounts[i] * prices[i];
-		}
-		return sum;
-	}
-
-	/**
-	 * Puts spinner values in the param 'ammounts' and returns its sum
-	 */
-	private int getSpinnerValues(int[] ammounts) {
-		int sum = 0;
-		for (int i = 0; i < ammounts.length; i++) {
-			ammounts[i] = (Integer) spinners[i].getValue();
-			sum += ammounts[i];
-		}
-		return sum;
-	}
-
-	private void zeroFill(int[] array) {
-		for (int i = 0; i < array.length; i++) {
-			array[i] = 0;
 		}
 	}
 
