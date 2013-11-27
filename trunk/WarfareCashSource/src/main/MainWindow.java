@@ -1,8 +1,7 @@
-package swing;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -10,6 +9,7 @@ import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,13 +17,13 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import main.Controller;
-import main.DataController;
+import swing.DayCyclePanel;
+import swing.Map;
+import swing.MyButton;
+import swing.ProductBox;
 import swing.MyButton.MyAction;
-import data.City;
 import data.Data;
 import data.Level;
-import data.Product;
 import data.ProductType;
 import data.Truck;
 import data.enums.Cargo;
@@ -69,7 +69,7 @@ public class MainWindow {
 			label_debt = new JLabel();
 			panel_means_money.add(label_debt);
 
-			MyButton button_loan = new MyButton("Loan", 20, 20);
+			MyButton button_loan = new MyButton("Loan", 45, 20);
 			button_loan.addAction(new MyAction() {
 				@Override
 				public void perform() {
@@ -186,8 +186,10 @@ public class MainWindow {
 			panel_products = new JPanel();
 			panel_products.setLayout(new GridLayout(
 					Data.NUMBER_OF_PRODUCTS_AVALIABLE, 1));
-			for (int i = 0; i < Data.NUMBER_OF_PRODUCTS_AVALIABLE; i++) {
-				productBoxes[i] = new ProductBox(false);
+			productBoxes[0] = new ProductBox(this,false);
+			panel_products.add(productBoxes[0]);
+			for (int i = 1; i < Data.NUMBER_OF_PRODUCTS_AVALIABLE; i++) {
+				productBoxes[i] = new ProductBox(this,true);
 				panel_products.add(productBoxes[i]);
 			}
 
@@ -304,14 +306,18 @@ public class MainWindow {
 	/**
 	 * RELOAD THE UI, UPDATE ALL THE DESIRED LABELS
 	 */
+	public void repaintUI() {
+
+		frame.repaint();
+	}
+
 	public void reloadUI() {
-		City selectedCity = data.getSelCity();
 		if (data.getWarehouseCity() != null)
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means at "
 					+ data.getWarehouseCity().getName()));
 
 		{// PANEL MEANS
-			label_cash.setText("$ " + String.format("%,d", data.getMoneyInt()));
+			label_cash.setText("$ " + String.format("%,d", data.getMoney()));
 			label_day_number.setText("day " + data.getDay());
 			if (data.getDebtInt() > 0)
 				label_debt.setText(data.getDebtInt() + "$ debt");
@@ -345,9 +351,10 @@ public class MainWindow {
 			if (data.getSelCity() != null) {
 				for (int i = 0; i < productBoxes.length; i++) {
 					productBoxes[i].setProduct(data.getWarehouseCity()
-							.getProducts()[i], 50, 50);
+							.getProducts()[i]);
 				}
 			}
+
 		}
 
 		{// PANEL SHOP
@@ -367,8 +374,6 @@ public class MainWindow {
 				}
 			}
 		}
-
-		frame.repaint();
 
 	}
 
@@ -448,34 +453,31 @@ public class MainWindow {
 				sum = ammounts[index] = (Integer) spinners[index].getValue();
 			}
 
-			if (data.getSelCity() != null)
-				if (sum > 0) {
-					int totalPrice = calculatePrice(ammounts, data.getSelCity()
-							.getCurrentPrices());
-					if (data.getMoney() > totalPrice) {
+			if (sum > 0 && data.getSelCity() != null) {
 
-						if (data.getSelCity() == data.getWarehouseCity()) {
-							data.addResources(ammounts);
-							data.addMoney(-totalPrice);
-						} else {
-							double tripPrice = data.getTripPrice(
-									data.getSelCity(), data.getWarehouseCity());
-							System.out.println("trip price from "
-									+ data.getWarehouseCity().getName()
-									+ " to " + data.getSelCity().getName()
-									+ " is " + tripPrice);
-							if (data.getMoney() > (totalPrice + tripPrice)) {
-								Truck c = new Truck(ammounts,
-										data.getSelCity(),
-										data.getWarehouseCity());
-								data.addTruck(c);
-								data.addMoney(-totalPrice - tripPrice);
-							}
-						}
+				double packagePrice = calculatePrice(ammounts, data
+						.getSelCity().getCurrentPrices());
+				double tripPrice = data.getTripPrice(data.getSelCity(),
+						data.getWarehouseCity());
 
+				double totalPrice = packagePrice + tripPrice;
+
+				if (data.getMoney() > totalPrice) {
+
+					if (data.getSelCity() == data.getWarehouseCity()) {
+						data.addResources(ammounts);
+						data.addMoney(-totalPrice);
+					} else {
+
+						Truck c = new Truck(ammounts, data.getSelCity(),
+								data.getWarehouseCity());
+						data.addTruck(c);
+						data.addMoney(-totalPrice);
 					}
-					reloadUI();
+
 				}
+				reloadUI();
+			}
 		}
 	};
 
@@ -494,15 +496,24 @@ public class MainWindow {
 		public void perform() {
 			int sum = 0;
 			int[] ammounts = new int[Cargo.values().length];
+
 			if (index < 0) {
 				sum = getSpinnerValues(ammounts);
 			} else {
 				zeroFill(ammounts);
 				sum = ammounts[index] = (Integer) spinners[index].getValue();
 			}
+
 			if (sum > 0 && data.getSelCity() != null) {
-				int totalPrice = calculatePrice(ammounts, data.getSelCity()
-						.getCurrentPrices());
+
+				double packagePrice = calculatePrice(ammounts, data
+						.getSelCity().getCurrentPrices());
+
+				double tripPrice = data.getTripPrice(data.getSelCity(),
+						data.getWarehouseCity());
+
+				double totalPrice = packagePrice - tripPrice;
+
 				if (data.hasResources(ammounts)) {
 					data.addMoney(totalPrice);
 					data.removeResources(ammounts);

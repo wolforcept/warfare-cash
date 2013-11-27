@@ -34,15 +34,14 @@ public class MyButton extends JComponent implements MouseListener {
 	@Override
 	public void paint(Graphics g) {
 		g.setFont(new Font(null, Font.BOLD, 12));
-		if (mousein)
+		if (mousein) {
 			g.setColor(new Color(0f, 0f, 0f, 0.8f));
-		else
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+		} else {
 			g.setColor(new Color(0.5f, 0.5f, 0.5f, 1f));
-
-		g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
-
+			g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+		}
 		g.drawString(text, 5, 14);
-		g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
 
 	}
 

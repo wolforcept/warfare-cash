@@ -71,7 +71,8 @@ public class City {
 
 	public void updateProducts() {
 		for (int i = 0; i < products.length; i++) {
-			products[i] = new Product("Amostra", 1000, new int[] { 5, 3, 2, 7 });
+			products[i] = new Product("Amostra " + i, 1000, new int[] { 5, 3,
+					2, 7 });
 		}
 	}
 

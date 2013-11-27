@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import data.City;
 import data.Data;
-import data.Hazard;
+import data.Event;
 import data.Debt;
 import data.Truck;
 import data.War;
@@ -53,11 +53,10 @@ public class DataController {
 
 	public void releaseTrucks() {
 		LinkedList<Truck> trucks = data.getTrucksSnapshot();
-		for (Iterator<Truck> it = trucks.iterator(); it.hasNext();) {
-			Truck t = (Truck) it.next();
+		for (Truck t : trucks) {
 			if (t.isArrived()) {
 				dumpTruck(t);
-				it.remove();
+				data.removeTruck(t);
 			}
 		}
 	}
@@ -74,7 +73,7 @@ public class DataController {
 	 * CITIES
 	 */
 
-	public void hazard(Hazard h) {
+	public void hazard(Event h) {
 		switch (h) {
 		case WIFE_DIVORCE:
 

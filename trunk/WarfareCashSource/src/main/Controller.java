@@ -2,9 +2,8 @@ package main;
 
 import java.util.LinkedList;
 
-import swing.MainWindow;
 import data.Data;
-import data.Hazard;
+import data.Event;
 import data.Truck;
 
 public class Controller extends Thread {
@@ -22,7 +21,7 @@ public class Controller extends Thread {
 			public void run() {
 				try {
 					while (true) {
-						window.reloadUI();
+						window.repaintUI();
 						sleep(50);
 					}
 				} catch (InterruptedException e) {
@@ -48,7 +47,7 @@ public class Controller extends Thread {
 				}
 
 				if (Math.random() < dataController.getData().getHazardRisk()) {
-					dataController.hazard(Hazard.getRandom());
+					dataController.hazard(Event.getRandom());
 				}
 
 				dataController.releaseTrucks();
