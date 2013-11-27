@@ -10,8 +10,9 @@ import java.beans.Transient;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import main.MainWindow;
 
 import swing.MyButton.MyAction;
 import data.Product;
@@ -21,61 +22,76 @@ public class ProductBox extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private final int BORDER = 5;
 
-	private JLabel product_name;
-	private MyButton product_price;
+	private MyButton product_name, product_price;
 
 	private Product product;
 	private int width, height;
 
 	private boolean closed;
+	private JPanel panel_bottom, panel_top;
+	// private JPanel contents;
 
-	public ProductBox(boolean closed) {
-		updateLayout();
+	private MainWindow window;
+
+	public ProductBox(MainWindow window, boolean closed) {
+		this.window = window;
 		this.closed = closed;
+
+		panel_top = new JPanel();
+		panel_top.setLayout(new GridLayout(1, 2));
+
+		product_name = new MyButton("unavaliable", 20, 20);
+		product_name.addAction(new Action_openClose());
+		product_name.setFont(new Font(null, Font.BOLD, 14));
+
+		product_price = new MyButton("-", 20, 20);
+		product_price.addAction(new Action_BuyProduct());
+		product_price.setFont(new Font(null, Font.BOLD, 14));
+
+		panel_bottom = new JPanel();
+		panel_bottom.setLayout(new GridLayout(1, Stat.values().length));
+
+		panel_top.add(product_name);
+		panel_top.add(product_price);
+
+		setLayout(new BorderLayout());
+		add(panel_top, BorderLayout.NORTH);
+
+		for (int i = 0; i < Stat.values().length; i++) {
+
+			Stat s = Stat.values()[i];
+
+			StatBox statBox = new StatBox(s);
+			panel_bottom.add(statBox);
+
+		}
+		add(panel_bottom, BorderLayout.CENTER);
+		
 		setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER,
 				BORDER));
+
+
 	}
 
-	public void setProduct(Product p, int width, int height) {
+	public void setProduct(Product p) {
 		product = p;
-		this.width = width;
-		this.height = height;
+		updateLayout();
 	}
 
 	public void updateLayout() {
 
-		if (!closed)
-			setLayout(new BorderLayout());
+		if (product != null) {
+			product_name.setText(product.getName());
+			product_name.setForeground(Color.black);
 
-		JPanel panel_top = new JPanel();
-		panel_top.setLayout(new GridLayout(1, 2));
-		add(panel_top, BorderLayout.NORTH);
+			product_price.setText("buy for $ " + product.getPrice());
+			product_name.setForeground(Color.black);
+		} else {
+			product_name.setText("unavaliable");
+			product_name.setForeground(Color.gray);
 
-		product_name = new JLabel("nothing avaliable");
-		product_name.setFont(new Font(null, Font.BOLD, 14));
-		product_name.setForeground(Color.gray);
-		panel_top.add(product_name);
-
-		product_price = new MyButton("nothing avaliable", 20, 20);
-		product_price.addAction(new Action_BuyProduct());
-		product_price.setFont(new Font(null, Font.BOLD, 14));
-		product_price.setForeground(Color.gray);
-		panel_top.add(product_price);
-
-		if (!closed) {
-
-			JPanel panel_bottom = new JPanel();
-			panel_bottom.setLayout(new GridLayout(1, Stat.values().length));
-
-			for (int i = 0; i < Stat.values().length; i++) {
-
-				Stat s = Stat.values()[i];
-
-				StatBox statBox = new StatBox(s);
-				panel_bottom.add(statBox);
-
-			}
-			add(panel_bottom, BorderLayout.CENTER);
+			product_price.setText("-");
+			product_name.setForeground(Color.gray);
 		}
 
 	}
@@ -83,30 +99,17 @@ public class ProductBox extends JPanel {
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-		drawProductBoxShape(g, 5, Color.gray);
-		if (product != null) {
+		drawProductBoxShape(g, 3, Color.gray);
 
-			product_name.setForeground(Color.black);
-			product_name.setText(product.getName());
-
-			product_price.setText("buy for $ " + product.getPrice());
-		}
 	}
 
 	private void drawProductBoxShape(Graphics g, int size, Color col) {
 		g.setColor(col);
 		for (int i = 0; i < size; i++) {
-			// g.setColor(ProductBox.moreTransparent(g.getColor()));
 			g.setColor(new Color(0.5f, 0.5f, 0.5f, 1 - (float) i / size));
 			g.drawRoundRect(i, i, getWidth() - 2 * i - 1, getHeight() - 2 * i
 					- 1, 10, 10);
-
 		}
-	}
-
-	public static Color moreTransparent(Color c) {
-		return new Color(c.getRed(), c.getGreen(), c.getBlue(),
-				(int) (c.getTransparency() * 0.8));
 	}
 
 	@Override
@@ -134,6 +137,15 @@ public class ProductBox extends JPanel {
 			if (product != null) {
 				System.out.println(product.getName());
 			}
+		}
+	}
+
+	private class Action_openClose implements MyAction {
+		@Override
+		public void perform() {
+			closed = !closed;
+			updateLayout();
+			window.reloadUI();
 		}
 	}
 

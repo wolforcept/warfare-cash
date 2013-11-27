@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import main.MainWindow;
+
 import data.City;
 import data.Data;
 import data.Truck;

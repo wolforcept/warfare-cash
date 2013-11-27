@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -17,9 +18,8 @@ public class Data {
 	public static final int DAY_LENGTH = 100, WAR_COOLDOWN = 100,
 			NUMBER_OF_PRODUCTS_AVALIABLE = 5;
 
-	private double money;
 	private LinkedList<Debt> debts;
-	private int selectedCity, warehouseCity, dayCounter, day;
+	private int money, selectedCity, warehouseCity, dayCounter, day;
 	private LinkedList<Truck> trucks;
 	private int[] resources;
 
@@ -33,7 +33,7 @@ public class Data {
 	private Wife wife;
 
 	public Data(Level level, ProductType[] stuffs) {
-		money = 999999;
+		money = 1000;
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
 		hazardRisk = INITIAL_HAZARD_RISK;
@@ -72,16 +72,12 @@ public class Data {
 		debts.add(debt);
 	}
 
-	public double getMoney() {
+	public int getMoney() {
 		return money;
 	}
 
-	public int getMoneyInt() {
-		return (int) Math.round(money);
-	}
-
 	public void addMoney(double totalPrice) {
-		money += totalPrice;
+		money += (int) Math.floor(totalPrice);
 	}
 
 	public int getDebtInt() {
@@ -249,6 +245,15 @@ public class Data {
 			return null;
 		} catch (IOException e) {
 			return null;
+		}
+	}
+
+	public void removeTruck(Truck t) {
+
+		for (Iterator<Truck> it = trucks.iterator(); it.hasNext();) {
+			Truck truck = (Truck) it.next();
+			if (t.equals(truck))
+				it.remove();
 		}
 	}
 
