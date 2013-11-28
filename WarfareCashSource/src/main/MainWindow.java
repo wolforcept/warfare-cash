@@ -5,10 +5,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,6 +25,7 @@ import swing.DayCyclePanel;
 import swing.Map;
 import swing.MyButton;
 import swing.ProductBox;
+import swing.ProductPanel;
 import swing.MyButton.MyAction;
 import data.Data;
 import data.Level;
@@ -39,9 +44,9 @@ public class MainWindow {
 			label_wayfaring;
 	private JSpinner[] spinners;
 
-	private JPanel panel_means, panel_wife, panel_shop, panel_products;
+	private JPanel panel_means, panel_wife, panel_shop;
 	private Map panel_map;
-
+	private ProductPanel panel_products;
 	private Data data;
 	private DataController dataController;
 	private ProductBox[] productBoxes;
@@ -183,15 +188,7 @@ public class MainWindow {
 
 			productBoxes = new ProductBox[Data.NUMBER_OF_PRODUCTS_AVALIABLE];
 
-			panel_products = new JPanel();
-			panel_products.setLayout(new GridLayout(
-					Data.NUMBER_OF_PRODUCTS_AVALIABLE, 1));
-			productBoxes[0] = new ProductBox(this,false);
-			panel_products.add(productBoxes[0]);
-			for (int i = 1; i < Data.NUMBER_OF_PRODUCTS_AVALIABLE; i++) {
-				productBoxes[i] = new ProductBox(this,true);
-				panel_products.add(productBoxes[i]);
-			}
+			panel_products = new ProductPanel(this, productBoxes);
 
 			panel_wife.add(panel_products, BorderLayout.CENTER);
 
@@ -374,7 +371,7 @@ public class MainWindow {
 				}
 			}
 		}
-
+		frame.revalidate();
 	}
 
 	/**

@@ -12,8 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import main.MainWindow;
-
 import swing.MyButton.MyAction;
 import data.Product;
 import data.enums.Stat;
@@ -27,15 +25,18 @@ public class ProductBox extends JPanel {
 	private Product product;
 	private int width, height;
 
-	private boolean closed;
+	private static int openedIndex;
 	private JPanel panel_bottom, panel_top;
-	// private JPanel contents;
 
-	private MainWindow window;
+	private ProductPanel window;
+	private int id;
 
-	public ProductBox(MainWindow window, boolean closed) {
+	public ProductBox(ProductPanel window, int id) {
 		this.window = window;
-		this.closed = closed;
+		this.id = id;
+
+		setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER,
+				BORDER));
 
 		panel_top = new JPanel();
 		panel_top.setLayout(new GridLayout(1, 2));
@@ -54,9 +55,6 @@ public class ProductBox extends JPanel {
 		panel_top.add(product_name);
 		panel_top.add(product_price);
 
-		setLayout(new BorderLayout());
-		add(panel_top, BorderLayout.NORTH);
-
 		for (int i = 0; i < Stat.values().length; i++) {
 
 			Stat s = Stat.values()[i];
@@ -65,17 +63,16 @@ public class ProductBox extends JPanel {
 			panel_bottom.add(statBox);
 
 		}
-		add(panel_bottom, BorderLayout.CENTER);
-		
-		setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER,
-				BORDER));
-
 
 	}
 
 	public void setProduct(Product p) {
 		product = p;
 		updateLayout();
+	}
+
+	public static int getOpenedIndex() {
+		return openedIndex;
 	}
 
 	public void updateLayout() {
@@ -93,7 +90,15 @@ public class ProductBox extends JPanel {
 			product_price.setText("-");
 			product_name.setForeground(Color.gray);
 		}
-
+		removeAll();
+		if (openedIndex == id) {
+			setLayout(new BorderLayout());
+			add(panel_top, BorderLayout.NORTH);
+			add(panel_bottom, BorderLayout.CENTER);
+		} else {
+			setLayout(new BorderLayout());
+			add(panel_top, BorderLayout.CENTER);
+		}
 	}
 
 	@Override
@@ -136,6 +141,7 @@ public class ProductBox extends JPanel {
 		public void perform() {
 			if (product != null) {
 				System.out.println(product.getName());
+				product=null;
 			}
 		}
 	}
@@ -143,7 +149,7 @@ public class ProductBox extends JPanel {
 	private class Action_openClose implements MyAction {
 		@Override
 		public void perform() {
-			closed = !closed;
+			openedIndex = id;
 			updateLayout();
 			window.reloadUI();
 		}
