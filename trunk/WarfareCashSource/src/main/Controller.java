@@ -19,6 +19,7 @@ public class Controller extends Thread {
 
 		new Thread() {
 			public void run() {
+				setName("Painter Thread");
 				try {
 					while (true) {
 						window.repaintUI();
@@ -35,6 +36,8 @@ public class Controller extends Thread {
 	@Override
 	public void run() {
 		try {
+			setName("Controller Thread");
+
 			dataController.nextDay();
 			while (true) {
 

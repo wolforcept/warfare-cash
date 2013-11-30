@@ -23,7 +23,7 @@ public class City {
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 
-		products = new Product[Data.NUMBER_OF_PRODUCTS_AVALIABLE];
+		products = new Product[Data.NUMBER_OF_PRODUCTS_AVAILABLE];
 	}
 
 	/*
@@ -69,11 +69,17 @@ public class City {
 		}
 	}
 
-	public void updateProducts() {
+	public void updateProducts(ProductType[] productTypes) {
 		for (int i = 0; i < products.length; i++) {
-			products[i] = new Product("Amostra " + i, 1000, new int[] { 5, 3,
-					2, 7 });
+			int type = (int)Math.floor((double) productTypes.length / (double) (products.length - i));
+			System.out.println("type: " + type);
+			// products[i] = productTypes[(int) Math.round(i
+			// / (productTypes.length - 1))].createProduct();
 		}
+	}
+
+	public double distanceTo(City remoteCity) {
+		return Math.hypot(x - remoteCity.getX(), y - remoteCity.getY());
 	}
 
 }

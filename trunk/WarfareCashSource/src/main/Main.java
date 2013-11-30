@@ -67,7 +67,7 @@ public class Main {
 				button_start.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						new MainWindow((Level) list_levels.getSelectedValue(),
-								readStuff());
+								readProducts());
 						frame.setVisible(false);
 						frame.dispose();
 						System.gc();
@@ -123,18 +123,18 @@ public class Main {
 		return levels.toArray(new Level[levels.size()]);
 	}
 
-	private ProductType[] readStuff() {
+	private ProductType[] readProducts() {
 		InputStream products_input = getClass().getResourceAsStream(
 				"/resources/producttypes");
 		Scanner scanner = new Scanner(products_input);
 
-		LinkedList<ProductType> stuffTypes = new LinkedList<ProductType>();
+		LinkedList<ProductType> productTypes = new LinkedList<ProductType>();
 		while (scanner.hasNext()) {
-			stuffTypes.add(new ProductType(scanner.nextLine()));
+			productTypes.add(new ProductType(scanner.nextLine()));
 		}
 
 		scanner.close();
 
-		return stuffTypes.toArray(new ProductType[stuffTypes.size()]);
+		return productTypes.toArray(new ProductType[productTypes.size()]);
 	}
 }

@@ -44,7 +44,7 @@ public class DataController {
 		ArrayList<City> cities = data.getCitiesSnapshot();
 		for (City city : cities) {
 			city.updatePrices();
-			city.updateProducts();
+			city.updateProducts(data.getProductTypes());
 		}
 		for (Debt d : data.getDebtsSnapshot()) {
 			d.increase();
@@ -88,7 +88,7 @@ public class DataController {
 			c2 = data.getRandomCity();
 		} while (c2.getName().equals(c1.getName()));
 		data.addWar(new War(data.getRandomCity(), c2));
-		System.out.println("a has raged between " + c1.getName() + " and "
+		System.out.println("a war has raged between " + c1.getName() + " and "
 				+ c2.getName());
 	}
 

@@ -27,7 +27,15 @@ public class DayCyclePanel extends JPanel {
 
 		float p = data.getDayCounter() / ((float) Data.DAY_LENGTH - 1);
 
-		graphs.setColor(new Color(1f - (0.5f * p), 1f - (0.5f * p), p, 1f));
+		float r = Math.max(0, 1f - (0.5f * p));
+		float g = Math.max(0, 1f - (0.5f * p));
+		float b = Math.max(0, p);
+
+		graphs.setColor(new Color(//
+				r > 1f ? 1f : r, //
+				g > 1f ? 1f : g, //
+				b > 1f ? 1f : b, //
+				1f));
 		graphs.fillRoundRect(0, (h - (int) (h * p)), w, 500, 10, 10);
 	}
 }
