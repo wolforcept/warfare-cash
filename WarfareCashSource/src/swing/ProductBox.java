@@ -9,34 +9,41 @@ import java.awt.GridLayout;
 import java.beans.Transient;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import main.MainWindow;
 import swing.MyButton.MyAction;
+import data.Data;
 import data.Product;
 import data.enums.Stat;
 
-public class ProductBox extends JPanel {
+public class ProductBox extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private final int BORDER = 5;
 
 	private MyButton product_name, product_price;
 
 	private Product product;
-	private int width, height;
+	private int width, maxHeight, minHeight;
 
 	private static int openedIndex;
 	private JPanel panel_bottom, panel_top;
 
-	private ProductPanel window;
+	private MainWindow window;
 	private int id;
 
-	public ProductBox(ProductPanel window, int id) {
+	public ProductBox(MainWindow window, int id) {
 		this.window = window;
 		this.id = id;
 
-		setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER,
-				BORDER));
+		width = 0;
+		minHeight = Data.PODUCT_BOX_MIN_HEIGHT;
+		maxHeight = Data.PODUCT_BOX_MAX_HEIGHT;
+
+		setBorder(BorderFactory.createMatteBorder(BORDER, BORDER, BORDER,
+				BORDER, Color.BLACK));
 
 		panel_top = new JPanel();
 		panel_top.setLayout(new GridLayout(1, 2));
@@ -63,7 +70,6 @@ public class ProductBox extends JPanel {
 			panel_bottom.add(statBox);
 
 		}
-
 	}
 
 	public void setProduct(Product p) {
@@ -104,7 +110,7 @@ public class ProductBox extends JPanel {
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-		drawProductBoxShape(g, 3, Color.gray);
+		drawProductBoxShape(g, BORDER, Color.gray);
 
 	}
 
@@ -120,19 +126,19 @@ public class ProductBox extends JPanel {
 	@Override
 	@Transient
 	public Dimension getMaximumSize() {
-		return new Dimension(width, height);
+		return new Dimension(10000, 10000);
 	}
 
 	@Override
 	@Transient
 	public Dimension getMinimumSize() {
-		return new Dimension(width, height);
+		return new Dimension(0, 0);
 	}
 
 	@Override
 	@Transient
 	public Dimension getPreferredSize() {
-		return new Dimension(width, height);
+		return new Dimension(width, openedIndex == id ? maxHeight : minHeight);
 	}
 
 	private class Action_BuyProduct implements MyAction {
@@ -141,7 +147,7 @@ public class ProductBox extends JPanel {
 		public void perform() {
 			if (product != null) {
 				System.out.println(product.getName());
-				product=null;
+				product = null;
 			}
 		}
 	}

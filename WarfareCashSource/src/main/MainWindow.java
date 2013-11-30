@@ -51,9 +51,9 @@ public class MainWindow {
 	private DataController dataController;
 	private ProductBox[] productBoxes;
 
-	public MainWindow(Level level, ProductType[] stuffTypes) {
+	public MainWindow(Level level, ProductType[] productTypes) {
 
-		data = new Data(level, stuffTypes);
+		data = new Data(level, productTypes);
 		dataController = new DataController(data);
 
 		frame = new JFrame();
@@ -65,7 +65,7 @@ public class MainWindow {
 			panel_means = new JPanel();
 			panel_means.setLayout(new BorderLayout());
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means"));
-			panel_means.setPreferredSize(new Dimension(320, 320));
+			panel_means.setPreferredSize(Data.PANEL_DEFAULT_SIZE);
 
 			label_cash = new JLabel();
 			label_cash.setFont(new Font(null, Font.BOLD, 18));
@@ -186,7 +186,7 @@ public class MainWindow {
 			JLabel label_wife = new JLabel("Wife");
 			panel_wife.add(label_wife, BorderLayout.NORTH);
 
-			productBoxes = new ProductBox[Data.NUMBER_OF_PRODUCTS_AVALIABLE];
+			productBoxes = new ProductBox[Data.NUMBER_OF_PRODUCTS_AVAILABLE];
 
 			panel_products = new ProductPanel(this, productBoxes);
 
@@ -309,6 +309,10 @@ public class MainWindow {
 	}
 
 	public void reloadUI() {
+
+//		System.out.println(System.currentTimeMillis() + "> "
+//				+ Thread.currentThread().getName() + " - Reloading UI"); // TODO
+
 		if (data.getWarehouseCity() != null)
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means at "
 					+ data.getWarehouseCity().getName()));
@@ -351,7 +355,6 @@ public class MainWindow {
 							.getProducts()[i]);
 				}
 			}
-
 		}
 
 		{// PANEL SHOP
@@ -371,6 +374,8 @@ public class MainWindow {
 				}
 			}
 		}
+
+		panel_products.reloadUI();
 		frame.revalidate();
 	}
 
@@ -472,6 +477,11 @@ public class MainWindow {
 						data.addMoney(-totalPrice);
 					}
 
+				} else {
+					JOptionPane.showMessageDialog(frame,
+							"You can't afford that. \nTotal Cost: "
+									+ totalPrice + ".\nYou are missing $ "
+									+ (totalPrice - data.getMoney()) + ".");
 				}
 				reloadUI();
 			}
@@ -520,6 +530,9 @@ public class MainWindow {
 								data.getSelCity(), true);
 						data.addTruck(c);
 					}
+				} else {
+					JOptionPane.showMessageDialog(frame,
+							"You dont own that much.");
 				}
 			}
 			reloadUI();
@@ -554,5 +567,4 @@ public class MainWindow {
 			reloadUI();
 		}
 	}
-
 }

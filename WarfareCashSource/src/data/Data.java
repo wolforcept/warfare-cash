@@ -1,5 +1,6 @@
 package data;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +17,9 @@ public class Data {
 
 	public static final double WAR_CHANCE = 0.01, INITIAL_HAZARD_RISK = 0.001;
 	public static final int DAY_LENGTH = 100, WAR_COOLDOWN = 100,
-			NUMBER_OF_PRODUCTS_AVALIABLE = 5;
+			NUMBER_OF_PRODUCTS_AVAILABLE = 8, PODUCT_BOX_MAX_HEIGHT = 40,
+			PODUCT_BOX_MIN_HEIGHT = 14, INITIAL_MONEY = 1000;
+	public static final Dimension PANEL_DEFAULT_SIZE = new Dimension(320, 320);
 
 	private LinkedList<Debt> debts;
 	private int money, selectedCity, warehouseCity, dayCounter, day;
@@ -31,9 +34,11 @@ public class Data {
 
 	private double multiplier;
 	private Wife wife;
+	private ProductType[] productTypes;
 
-	public Data(Level level, ProductType[] stuffs) {
-		money = 1000;
+	public Data(Level level, ProductType[] productTypes) {
+		this.productTypes = productTypes;
+		money = Data.INITIAL_MONEY;
 		selectedCity = warehouseCity = -1;
 		levelName = level.getName();
 		hazardRisk = INITIAL_HAZARD_RISK;
@@ -44,7 +49,7 @@ public class Data {
 
 		multiplier = 0.5;
 
-		wife = new Wife(stuffs);
+		wife = new Wife();
 
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
@@ -191,8 +196,10 @@ public class Data {
 	}
 
 	public double getTripPrice(City c1, City c2) {
-		return multiplier
-				* Math.hypot(c1.getX() - c2.getX(), c1.getY() - c2.getY());
+		if (c1.equals(c2)) {
+			return 0;
+		}
+		return multiplier * c1.distanceTo(c2);
 	}
 
 	public int getWarehouseCityIndex() {
@@ -221,6 +228,13 @@ public class Data {
 		return new LinkedList<Debt>(debts);
 	}
 
+	public ProductType[] getProductTypes() {
+		return productTypes;
+	}
+
+	/*
+	 * WARS
+	 */
 	public LinkedList<War> getWarsSnapshot() {
 		return new LinkedList<War>(wars);
 	}

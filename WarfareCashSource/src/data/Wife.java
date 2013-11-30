@@ -1,6 +1,5 @@
 package data;
 
-
 public class Wife {
 
 	/**
@@ -8,12 +7,8 @@ public class Wife {
 	 */
 	private int mood;
 
-	private ProductType[] productTypes;
-
-	public Wife(ProductType[] products) {
+	public Wife() {
 		mood = 4;
-
-		this.productTypes = products;
 
 	}
 

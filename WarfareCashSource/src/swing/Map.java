@@ -69,13 +69,11 @@ public class Map extends JPanel {
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 				showNames = false;
-				window.reloadUI();
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				showNames = true;
-				window.reloadUI();
 			}
 
 			@Override
