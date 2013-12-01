@@ -5,15 +5,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,9 +19,9 @@ import javax.swing.SpinnerNumberModel;
 import swing.DayCyclePanel;
 import swing.Map;
 import swing.MyButton;
+import swing.MyButton.MyAction;
 import swing.ProductBox;
 import swing.ProductPanel;
-import swing.MyButton.MyAction;
 import data.Data;
 import data.Level;
 import data.ProductType;
@@ -368,7 +363,7 @@ public class MainWindow {
 
 				for (int i = 0; i < label_resource_quantities.length; i++) {
 
-					int nr = (int) Math.round(data.getSelCity().getPrice(i));
+					int nr = (int) Math.round(data.getSelCity().getResourcePrice(i));
 					label_resource_prices[i].setText("$ "
 							+ String.format("%,d", nr));
 				}
@@ -458,7 +453,7 @@ public class MainWindow {
 			if (sum > 0 && data.getSelCity() != null) {
 
 				double packagePrice = calculatePrice(ammounts, data
-						.getSelCity().getCurrentPrices());
+						.getSelCity().getResourcePrices());
 				double tripPrice = data.getTripPrice(data.getSelCity(),
 						data.getWarehouseCity());
 
@@ -514,7 +509,7 @@ public class MainWindow {
 			if (sum > 0 && data.getSelCity() != null) {
 
 				double packagePrice = calculatePrice(ammounts, data
-						.getSelCity().getCurrentPrices());
+						.getSelCity().getResourcePrices());
 
 				double tripPrice = data.getTripPrice(data.getSelCity(),
 						data.getWarehouseCity());

@@ -6,7 +6,7 @@ public class City {
 
 	private String name;
 	private int x, y, a_nr_with_no_purpose_yet;
-	private double[] currentPrices;
+	private double[] resourcePrices;
 	private Product[] products;
 
 	public City(String name, int x, int y, int nr) {
@@ -17,9 +17,9 @@ public class City {
 		this.name = name;
 		// System.out.println("   " + name + " " + x + "," + y + " nr:" + nr);
 
-		currentPrices = new double[Cargo.values().length];
-		for (int i = 0; i < currentPrices.length; i++) {
-			currentPrices[i] = Cargo.values()[i].getMin() + Math.random()
+		resourcePrices = new double[Cargo.values().length];
+		for (int i = 0; i < resourcePrices.length; i++) {
+			resourcePrices[i] = Cargo.values()[i].getMin() + Math.random()
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 
@@ -30,12 +30,12 @@ public class City {
 	 * GETTERS
 	 */
 
-	public double getPrice(int index) {
-		return currentPrices[index];
+	public double getResourcePrice(int index) {
+		return resourcePrices[index];
 	}
 
-	public double[] getCurrentPrices() {
-		return currentPrices;
+	public double[] getResourcePrices() {
+		return resourcePrices;
 	}
 
 	public int getX() {
@@ -62,9 +62,9 @@ public class City {
 	 * ACTIONS
 	 */
 
-	public void updatePrices() {
-		for (int i = 0; i < currentPrices.length; i++) {
-			currentPrices[i] = Cargo.values()[i].getMin() + Math.random()
+	public void updateResourcePrices() {
+		for (int i = 0; i < resourcePrices.length; i++) {
+			resourcePrices[i] = Cargo.values()[i].getMin() + Math.random()
 					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
 		}
 	}

@@ -9,7 +9,6 @@ import java.awt.GridLayout;
 import java.beans.Transient;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -42,8 +41,8 @@ public class ProductBox extends JComponent {
 		minHeight = Data.PODUCT_BOX_MIN_HEIGHT;
 		maxHeight = Data.PODUCT_BOX_MAX_HEIGHT;
 
-		setBorder(BorderFactory.createMatteBorder(BORDER, BORDER, BORDER,
-				BORDER, Color.BLACK));
+		setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER,
+				BORDER));
 
 		panel_top = new JPanel();
 		panel_top.setLayout(new GridLayout(1, 2));
@@ -51,7 +50,7 @@ public class ProductBox extends JComponent {
 		product_name = new MyButton("unavaliable", 20, 20);
 		product_name.addAction(new Action_openClose());
 		product_name.setFont(new Font(null, Font.BOLD, 14));
-
+		
 		product_price = new MyButton("-", 20, 20);
 		product_price.addAction(new Action_BuyProduct());
 		product_price.setFont(new Font(null, Font.BOLD, 14));
