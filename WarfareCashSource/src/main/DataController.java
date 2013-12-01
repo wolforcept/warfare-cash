@@ -1,13 +1,12 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import data.City;
 import data.Data;
-import data.Event;
 import data.Debt;
+import data.Event;
 import data.Truck;
 import data.War;
 
@@ -43,7 +42,7 @@ public class DataController {
 		data.addDay();
 		ArrayList<City> cities = data.getCitiesSnapshot();
 		for (City city : cities) {
-			city.updatePrices();
+			city.updateResourcePrices();
 			city.updateProducts(data.getProductTypes());
 		}
 		for (Debt d : data.getDebtsSnapshot()) {

@@ -3,7 +3,6 @@ package swing;
 import java.awt.Dimension;
 
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 
 public class OutterShop extends JDialog {
 
