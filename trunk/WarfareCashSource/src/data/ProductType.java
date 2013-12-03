@@ -26,12 +26,11 @@ public class ProductType {
 	public Product createProduct() {
 
 		Random r = new Random();
-		new Product(names[r.nextInt(names.length)], r.nextInt(max - min),
-				getRandomStats());
-		return null;
+		return new Product(names[r.nextInt(names.length)],
+				r.nextInt(max - min), getRandomStats());
 	}
 
 	private int[] getRandomStats() {
-		return new int[] { 3, 3, 3, 3 };
+		return new int[] { 3, 3, 3, 3 }; // TODO RANDOM PRODUCT STATS
 	}
 }

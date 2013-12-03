@@ -1,25 +1,26 @@
 package data;
 
-import data.enums.Cargo;
-
 public class Truck {
-	private int[] ammounts;
+	private int cargoAmmount;
 	private City origin, destination;
 	private int x, y;
 	private boolean arrived, sell;
+	private int cargoIndex;
+	private int money;
+	private boolean isDead;
 
-	public Truck(int[] ammount, City origin, City destination) {
-		this(ammount, origin, destination, false);
-	}
-
-	public Truck(int[] ammount, City origin, City destination, boolean sell) {
-		this.ammounts = ammount;
+	public Truck(int index, int ammount, City origin, City destination,
+			boolean sell, int money) {
+		this.cargoAmmount = ammount;
 		this.origin = origin;
 		this.destination = destination;
-		x = origin.getX();
-		y = origin.getY();
-		arrived = false;
+		this.cargoIndex = index;
+		this.x = origin.getX();
+		this.y = origin.getY();
+		this.arrived = false;
 		this.sell = sell;
+		this.money = money;
+		this.isDead = false;
 	}
 
 	private void translate(double d, double e) {
@@ -30,18 +31,24 @@ public class Truck {
 	public void approach() {
 		double speed = Math.random() * 5 + 5;
 		double dir = getDirection();
-		if (Math.hypot(destination.getY() - y, destination.getX() - x) < speed) {
+		money -= Math.random() * Data.TRUCK_CONSUMPTION * 0.2 + Data.TRUCK_CONSUMPTION * 0.8;
+		if (money < 0) {
+			isDead = true;
+		} else if (Math.hypot(destination.getY() - y, destination.getX() - x) < speed) {
 			x = destination.getX();
 			y = destination.getY();
 			arrived = true;
 		} else {
-
 			translate(Math.cos(dir) * speed, Math.sin(dir) * speed);
 		}
 	}
 
 	public boolean isArrived() {
 		return arrived;
+	}
+
+	public boolean isDead() {
+		return isDead;
 	}
 
 	public int getX() {
@@ -52,16 +59,12 @@ public class Truck {
 		return y;
 	}
 
-	public int getCargoAmmount(Cargo c) {
-		return ammounts[c.ordinal()];
-	}
+	// public int getCargoAmmount(Cargo c) {
+	// return ammounts[c.ordinal()];
+	// }
 
-	public int getCargoAmmount(int c) {
-		return ammounts[c];
-	}
-
-	public int[] getAmmounts() {
-		return ammounts;
+	public int getCargoAmmount() {
+		return cargoAmmount;
 	}
 
 	public City getOrigin() {
@@ -83,6 +86,10 @@ public class Truck {
 
 	public boolean isSeller() {
 		return sell;
+	}
+
+	public int getCargoIndex() {
+		return cargoIndex;
 	}
 
 }

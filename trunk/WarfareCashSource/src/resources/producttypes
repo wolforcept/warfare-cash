@@ -1,2 +1,4 @@
-basic_needs 100,500 pastry,dinner
-jewelry 10000,50000 diamond_ring,tiara
+BASIC_NEEDS 100,500 pastry,dinner
+APPARELL 1000,5000 red_dress,dinner,diamond_ring,tiara
+EVENTS 50000,100000 summer_festival,VIP_spa,
+BIG_ITEMS 100000,5000000 house,car,pool

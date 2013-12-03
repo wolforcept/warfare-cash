@@ -1,31 +1,36 @@
 package data.enums;
 
 public enum Cargo {
-	FIRE_WEAPONS("Fire Weapons", 5, 50), //
-	WAR_MACHINES("War Machines", 60, 600), //
-	CHEMICAL_WEAPONS("Chemical Weapons", 400, 4000), //
-//	BIOWEAPONS("Bio Agents", 800, 8000), //
-	NUCLEAR_WARHEADS("Nuclear Warheads", 1000, 10000); //
+	FIRE_WEAPONS("Fire Weapons", 5, 50, 200), //
+	WAR_MACHINES("War Machines", 60, 600, 100), //
+	CHEMICAL_WEAPONS("Chemical Weapons", 400, 4000, 50), //
+	// BIOWEAPONS("Bio Agents", 800, 8000), //
+	NUCLEAR_WARHEADS("Nuclear Warheads", 1000, 10000, 8); //
 
 	private String name;
-	private int min, max;
+	private int minPrice, maxPrice, maxQnt;
 
-	private Cargo(String name, int min, int max) {
+	private Cargo(String name, int minP, int maxP, int maxQnt) {
 		this.name = name;
-		this.min = min;
-		this.max = max;
+		this.minPrice = minP;
+		this.maxPrice = maxP;
+		this.maxQnt = maxQnt;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public int getMax() {
-		return max;
+	public int getMaxPrice() {
+		return maxPrice;
 	}
 
-	public int getMin() {
-		return min;
+	public int getMinPrice() {
+		return minPrice;
+	}
+
+	public double getMaxQnt() {
+		return maxQnt;
 	}
 
 }

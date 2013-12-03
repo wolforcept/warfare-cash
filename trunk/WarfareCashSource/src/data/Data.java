@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -16,109 +18,128 @@ import data.enums.Cargo;
 public class Data {
 
 	public static final double WAR_CHANCE = 0.01, INITIAL_HAZARD_RISK = 0.001;
-	public static final int DAY_LENGTH = 100, WAR_COOLDOWN = 100,
-			NUMBER_OF_PRODUCTS_AVAILABLE = 8, PODUCT_BOX_MAX_HEIGHT = 40,
-			PODUCT_BOX_MIN_HEIGHT = 14, INITIAL_MONEY = 1000;
+	public static final int DAY_LENGTH = 50, WAR_COOLDOWN = 100,
+			NUMBER_OF_PRODUCTS_AVAILABLE_PER_CATEGORY = 2,
+			PODUCT_BOX_MAX_HEIGHT = 40, PODUCT_BOX_MIN_HEIGHT = 14,
+			INITIAL_MONEY = 1000;
 	public static final Dimension PANEL_DEFAULT_SIZE = new Dimension(320, 320);
+	public static final int TRUCK_CONSUMPTION = 2;
 
-	private LinkedList<Debt> debts;
-	private int money, selectedCity, warehouseCity, dayCounter, day;
+	private HashMap<Integer, Debt> debts;
 	private LinkedList<Truck> trucks;
-	private int[] resources;
-
 	private LinkedList<War> wars;
+
+	private int[] resources;
+	private ProductType[] productTypes;
+
+	private int money, selectedCity, warehouseCity, dayCounter, day;
 
 	private String levelName;
 	private double hazardRisk;
-	private Level level;
+	private boolean updatePanelProducts;
 
-	private double multiplier;
+	private Level level;
 	private Wife wife;
-	private ProductType[] productTypes;
 
 	public Data(Level level, ProductType[] productTypes) {
 		this.productTypes = productTypes;
-		money = Data.INITIAL_MONEY;
-		selectedCity = warehouseCity = -1;
-		levelName = level.getName();
-		hazardRisk = INITIAL_HAZARD_RISK;
-		dayCounter = 0;
-		day = 0;
+		this.money = Data.INITIAL_MONEY;
+		this.selectedCity = warehouseCity = -1;
+		this.levelName = level.getName();
+		this.hazardRisk = INITIAL_HAZARD_RISK;
+		this.dayCounter = 0;
+		this.day = 0;
+		this.wife = new Wife();
+		this.level = level;
 
+		debts = new HashMap<Integer, Debt>();
+		trucks = new LinkedList<Truck>();
 		wars = new LinkedList<War>();
-
-		multiplier = 0.5;
-
-		wife = new Wife();
 
 		resources = new int[Cargo.values().length];
 		for (int i = 0; i < resources.length; i++) {
 			resources[i] = 0;
 		}
 
-		this.level = level;
-		debts = new LinkedList<Debt>();
-		trucks = new LinkedList<Truck>();
+		updatePanelProducts = false;
+	}
 
+	public boolean isUpdatePanelProducts() {
+		return updatePanelProducts;
+	}
+
+	public void isUpdatePanelProducts(boolean b) {
+		updatePanelProducts = b;
 	}
 
 	/*
 	 * MONEY
 	 */
-	public int getLoanTotal() {
-		int total = 0;
-		for (Debt d : debts) {
-			total += d.getValue();
-		}
-		return total;
-	}
-
-	public void addDebt(Debt debt) {
-		debts.add(debt);
-	}
 
 	public int getMoney() {
 		return money;
 	}
 
-	public void addMoney(double totalPrice) {
-		money += (int) Math.floor(totalPrice);
+	public void addMoney(int ammount) {
+		money += ammount;
 	}
 
-	public int getDebtInt() {
-		int debt = 0;
-		for (Debt d : debts) {
-			debt += d.getValue();
+	/*
+	 * DEBTS
+	 */
+
+	public int getDebtTotal() {
+		int total = 0;
+		for (Entry<Integer, Debt> d : debts.entrySet()) {
+			total += d.getValue().getValue();
 		}
-		return debt;
+		return total;
+	}
+
+	public void addDebt(Debt debt) {
+		debts.put(debt.getId(), debt);
+	}
+
+	public int tryPayDebt(int id) {
+		Debt debt = debts.get(id);
+
+		if (money >= debt.getValue()) {
+			money -= debt.getValue();
+			return 0;
+		} else {
+			int left = debt.getValue() - money;
+			money = 0;
+			debt.setValue(left);
+			return -left;
+		}
+	}
+
+	public LinkedList<Debt> getDebtsSnapshot() {
+		LinkedList<Debt> debtSnap = new LinkedList<Debt>();
+		for (Entry<Integer, Debt> e : debts.entrySet()) {
+			debtSnap.add(e.getValue());
+		}
+		return debtSnap;
 	}
 
 	/*
 	 * RESOURCES
 	 */
-	public boolean hasResources(int[] ammounts) {
-		boolean hasResources = true;
-		for (int i = 0; i < ammounts.length; i++) {
-			if (getResourceAmmount(i) < ammounts[i])
-				hasResources = false;
-		}
-		return hasResources;
+
+	public boolean hasResource(int index, int ammount) {
+		return resources[index] >= ammount;
 	}
 
 	public void sellAll(int i) {
 		resources[i] = 0;
 	}
 
-	public void addResources(int[] ammounts) {
-		for (int i = 0; i < ammounts.length; i++) {
-			resources[i] += ammounts[i];
-		}
+	public void addResource(int index, int ammount) {
+		resources[index] += ammount;
 	}
 
-	public void removeResources(int[] ammounts) {
-		for (int i = 0; i < ammounts.length; i++) {
-			resources[i] -= ammounts[i];
-		}
+	public void removeResource(int index, int ammount) {
+		resources[index] -= ammount;
 	}
 
 	public int getResourceAmmount(int i) {
@@ -195,11 +216,11 @@ public class Data {
 		return list.get(0);
 	}
 
-	public double getTripPrice(City c1, City c2) {
+	public int getTripPrice(City c1, City c2) {
 		if (c1.equals(c2)) {
 			return 0;
 		}
-		return multiplier * c1.distanceTo(c2);
+		return (int) Math.floor((c1.distanceTo(c2) / Data.TRUCK_CONSUMPTION));
 	}
 
 	public int getWarehouseCityIndex() {
@@ -209,6 +230,7 @@ public class Data {
 	/*
 	 * TRUCKS
 	 */
+
 	public LinkedList<Truck> getTrucksSnapshot() {
 		return new LinkedList<Truck>(trucks);
 	}
@@ -220,12 +242,9 @@ public class Data {
 	/*
 	 * WIFE
 	 */
+
 	public Wife getWife() {
 		return wife;
-	}
-
-	public LinkedList<Debt> getDebtsSnapshot() {
-		return new LinkedList<Debt>(debts);
 	}
 
 	public ProductType[] getProductTypes() {
@@ -242,6 +261,7 @@ public class Data {
 	/*
 	 * HAZARDS
 	 */
+
 	public double getHazardRisk() {
 		return hazardRisk;
 	}

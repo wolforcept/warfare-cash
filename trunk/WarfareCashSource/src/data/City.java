@@ -1,41 +1,42 @@
 package data;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import data.enums.Cargo;
 
 public class City {
 
 	private String name;
 	private int x, y, a_nr_with_no_purpose_yet;
-	private double[] resourcePrices;
-	private Product[] products;
+	private int[] resourcePrices;
+	private int[] resourceQuantities;
+	private LinkedList<Product> products;
 
 	public City(String name, int x, int y, int nr) {
 		this.x = x;
 		this.y = y;
 		this.a_nr_with_no_purpose_yet = nr;
 		// this.hazarded = false;
+		products = new LinkedList<Product>();
 		this.name = name;
-		// System.out.println("   " + name + " " + x + "," + y + " nr:" + nr);
 
-		resourcePrices = new double[Cargo.values().length];
-		for (int i = 0; i < resourcePrices.length; i++) {
-			resourcePrices[i] = Cargo.values()[i].getMin() + Math.random()
-					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
-		}
+		resourcePrices = new int[Cargo.values().length];
+		resourceQuantities = new int[Cargo.values().length];
+		updateResources();
 
-		products = new Product[Data.NUMBER_OF_PRODUCTS_AVAILABLE];
 	}
 
 	/*
 	 * GETTERS
 	 */
 
-	public double getResourcePrice(int index) {
+	public int getResourcePrice(int index) {
 		return resourcePrices[index];
 	}
 
-	public double[] getResourcePrices() {
-		return resourcePrices;
+	public int getResourceQuantity(int index) {
+		return resourceQuantities[index];
 	}
 
 	public int getX() {
@@ -50,36 +51,51 @@ public class City {
 		return name;
 	}
 
-	public Product[] getProducts() {
+	public LinkedList<Product> getProducts() {
 		return products;
-	}
-
-	public void setProduct(int index, Product p) {
-		this.products[index] = p;
 	}
 
 	/*
 	 * ACTIONS
 	 */
 
-	public void updateResourcePrices() {
+	public void updateResources() {
 		for (int i = 0; i < resourcePrices.length; i++) {
-			resourcePrices[i] = Cargo.values()[i].getMin() + Math.random()
-					* (Cargo.values()[i].getMax() - Cargo.values()[i].getMin());
+			resourcePrices[i] = (int) (Cargo.values()[i].getMinPrice() + Math
+					.random()
+					* (Cargo.values()[i].getMaxPrice() - Cargo.values()[i]
+							.getMinPrice()));
+
+			resourceQuantities[i] = (int) (Math.random() * Cargo.values()[i]
+					.getMaxQnt());
 		}
 	}
 
 	public void updateProducts(ProductType[] productTypes) {
-		for (int i = 0; i < products.length; i++) {
-			int type = (int)Math.floor((double) productTypes.length / (double) (products.length - i));
-			System.out.println("type: " + type);
-			// products[i] = productTypes[(int) Math.round(i
-			// / (productTypes.length - 1))].createProduct();
+		products.clear();
+		for (int i = 0; i < productTypes.length; i++) {
+			for (int j = 0; j < Data.NUMBER_OF_PRODUCTS_AVAILABLE_PER_CATEGORY; j++) {
+				Product p = productTypes[i].createProduct();
+				products.add(p);
+				// System.out.println("added " + p.getName() + " for " +
+				// p.getPrice());
+			}
+		}
+	}
+
+	public void removeProduct(Product p) {
+		for (Iterator<Product> it = products.iterator(); it.hasNext();it.next()) {
+			if (it.equals(p))
+				it.remove();
 		}
 	}
 
 	public double distanceTo(City remoteCity) {
 		return Math.hypot(x - remoteCity.getX(), y - remoteCity.getY());
+	}
+
+	public void addResource(int index, int ammount) {
+		resourceQuantities[index] += ammount;
 	}
 
 }

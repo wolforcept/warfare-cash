@@ -51,13 +51,17 @@ public class Map extends JPanel {
 									"Are you sure you want to build your warehouse in "
 											+ data.getCity(i).getName() + "?",
 									"Your First Warehouse",
-									JOptionPane.YES_NO_OPTION))
+									JOptionPane.YES_NO_OPTION)) {
 								data.setWarehouseCity(i);
+								data.setSelectedCity(i);
+								window.reloadUI();
+							}
 
+						} else {
+							data.setSelectedCity(i);
+							window.reloadUI();
 						}
 
-						data.setSelectedCity(i);
-						window.reloadUI();
 					}
 				}
 			}

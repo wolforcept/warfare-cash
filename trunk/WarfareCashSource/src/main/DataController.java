@@ -42,12 +42,13 @@ public class DataController {
 		data.addDay();
 		ArrayList<City> cities = data.getCitiesSnapshot();
 		for (City city : cities) {
-			city.updateResourcePrices();
+			city.updateResources();
 			city.updateProducts(data.getProductTypes());
 		}
 		for (Debt d : data.getDebtsSnapshot()) {
 			d.increase();
 		}
+		data.isUpdatePanelProducts(true);
 	}
 
 	public void releaseTrucks() {
@@ -56,6 +57,8 @@ public class DataController {
 			if (t.isArrived()) {
 				dumpTruck(t);
 				data.removeTruck(t);
+			} else if (t.isDead()) {
+				data.removeTruck(t);
 			}
 		}
 	}
@@ -63,7 +66,7 @@ public class DataController {
 	public void stepWars() {
 		for (War war : data.getWarsSnapshot()) {
 			if (war.stepAndTryEnd()) {
-
+				// TODO WARS STEP
 			}
 		}
 	}
@@ -104,7 +107,12 @@ public class DataController {
 	 */
 	private void dumpTruck(Truck t) {
 		if (!t.isSeller()) {
-			data.addResources(t.getAmmounts());
+			data.addResource(t.getCargoIndex(), t.getCargoAmmount());
+		} else {
+			data.addMoney(t.getDestination()
+					.getResourcePrice(t.getCargoIndex()) * t.getCargoAmmount());
+			t.getDestination().addResource(t.getCargoIndex(),
+					t.getCargoAmmount());
 		}
 	}
 

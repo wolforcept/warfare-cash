@@ -1,38 +1,61 @@
 package swing;
 
+import java.awt.GridLayout;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import main.MainWindow;
 import data.Data;
+import data.Product;
 
 public class ProductPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private ProductBox[] productBoxes;
+	private LinkedList<ProductBox> productBoxes;
 
-	public ProductPanel(MainWindow window, ProductBox[] productBoxes) {
+	public ProductPanel() {
 
-		this.productBoxes = productBoxes;
+		productBoxes = new LinkedList<ProductBox>();
 
 		setBorder(BorderFactory.createTitledBorder("Products for Sale"));
-
-		productBoxes[0] = new ProductBox(window, 0);
-		for (int i = 1; i < Data.NUMBER_OF_PRODUCTS_AVAILABLE; i++) {
-			productBoxes[i] = new ProductBox(window, i);
-		}
 	}
 
 	public void reloadUI() {
-
 		removeAll();
-
-		BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
-		setLayout(l);
-		for (int i = 0; i < productBoxes.length; i++) {
-			add(productBoxes[i]);
+		if (productBoxes.size() > 0) {
+			BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
+			setLayout(l);
+			for (ProductBox p : productBoxes) {
+				add(p);
+				p.updateLayout();
+			}
+		} else {
+			setLayout(new GridLayout(1, 1));
+			add(new JLabel("No Products Avaliable", JLabel.CENTER));
 		}
 
+	}
+
+	public void setProducts(MainWindow window, LinkedList<Product> products) {
+		productBoxes.clear();
+
+		Collections.sort(products, new Comparator<Product>() {
+
+			@Override
+			public int compare(Product o1, Product o2) {
+				return o1.getPrice() <= o2.getPrice() ? -1 : 1;
+			}
+		});
+
+		int i = 0;
+		for (Product p : products) {
+			productBoxes.add(new ProductBox(window, i++, p));
+		}
 	}
 }
