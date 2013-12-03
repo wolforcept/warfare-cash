@@ -33,9 +33,10 @@ public class ProductBox extends JComponent {
 	private MainWindow window;
 	private int id;
 
-	public ProductBox(MainWindow window, int id) {
+	public ProductBox(MainWindow window, int id, Product product) {
 		this.window = window;
 		this.id = id;
+		this.product = product;
 
 		width = 0;
 		minHeight = Data.PODUCT_BOX_MIN_HEIGHT;
@@ -50,7 +51,7 @@ public class ProductBox extends JComponent {
 		product_name = new MyButton("unavaliable", 20, 20);
 		product_name.addAction(new Action_openClose());
 		product_name.setFont(new Font(null, Font.BOLD, 14));
-		
+
 		product_price = new MyButton("-", 20, 20);
 		product_price.addAction(new Action_BuyProduct());
 		product_price.setFont(new Font(null, Font.BOLD, 14));
@@ -71,11 +72,6 @@ public class ProductBox extends JComponent {
 		}
 	}
 
-	public void setProduct(Product p) {
-		product = p;
-		updateLayout();
-	}
-
 	public static int getOpenedIndex() {
 		return openedIndex;
 	}
@@ -83,7 +79,7 @@ public class ProductBox extends JComponent {
 	public void updateLayout() {
 
 		if (product != null) {
-			product_name.setText(product.getName());
+			product_name.setText((id + 1) + "  -  " + product.getName());
 			product_name.setForeground(Color.black);
 
 			product_price.setText("buy for $ " + product.getPrice());
@@ -140,6 +136,15 @@ public class ProductBox extends JComponent {
 		return new Dimension(width, openedIndex == id ? maxHeight : minHeight);
 	}
 
+	private class Action_openClose implements MyAction {
+		@Override
+		public void perform() {
+			openedIndex = id;
+			updateLayout();
+			window.reloadUI(true);
+		}
+	}
+
 	private class Action_BuyProduct implements MyAction {
 
 		@Override
@@ -148,15 +153,6 @@ public class ProductBox extends JComponent {
 				System.out.println(product.getName());
 				product = null;
 			}
-		}
-	}
-
-	private class Action_openClose implements MyAction {
-		@Override
-		public void perform() {
-			openedIndex = id;
-			updateLayout();
-			window.reloadUI();
 		}
 	}
 
