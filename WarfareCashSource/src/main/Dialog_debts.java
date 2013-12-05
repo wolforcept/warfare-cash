@@ -97,7 +97,6 @@ public class Dialog_debts extends JDialog {
 		panel_debts.removeAll();
 
 		if (debts != null) {
-
 			panel_debts.setLayout(new GridLayout(//
 					// // debts.size() == 0 ? 3 : //
 					Math.max(1, debts.size()), 1));
@@ -110,7 +109,6 @@ public class Dialog_debts extends JDialog {
 				label_noDebts.setForeground(Color.gray);
 				panel_debts.add(label_noDebts);
 			} else {
-
 				for (Debt debt : debts) {
 					JPanel panel = new JPanel();
 					panel.setLayout(new BorderLayout());

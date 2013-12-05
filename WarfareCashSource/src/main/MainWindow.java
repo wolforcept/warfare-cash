@@ -25,6 +25,7 @@ import data.Data;
 import data.Level;
 import data.ProductType;
 import data.Truck;
+import data.PanelWife;
 import data.enums.Cargo;
 
 public class MainWindow {
@@ -43,6 +44,7 @@ public class MainWindow {
 	private Data data;
 	private DataController dataController;
 	private Dialog_debts dialog_debts;
+	private PanelWife wife;
 
 	public MainWindow(Level level, ProductType[] productTypes) {
 
@@ -65,8 +67,8 @@ public class MainWindow {
 			panel_wife = new JPanel();
 			panel_wife.setLayout(new BorderLayout());
 
-			JLabel label_wife = new JLabel("Wife");
-			panel_wife.add(label_wife, BorderLayout.NORTH);
+			wife = new PanelWife(data, 10, 5, 5, 6, 0.2);
+			panel_wife.add(wife, BorderLayout.NORTH);
 
 			panel_products = new ProductPanel();
 
@@ -307,7 +309,6 @@ public class MainWindow {
 	 * RELOAD THE UI, UPDATE ALL THE DESIRED LABELS
 	 */
 	public void repaintUI() {
-
 		frame.repaint();
 	}
 
@@ -355,6 +356,7 @@ public class MainWindow {
 		}
 
 		{// PANEL WIFE
+			wife.reload();
 			if (data.getWarehouseCity() != null && data.isUpdatePanelProducts()) {
 				panel_products.setProducts(this, data.getWarehouseCity()
 						.getProducts());

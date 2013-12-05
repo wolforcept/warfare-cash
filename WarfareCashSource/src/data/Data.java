@@ -39,7 +39,6 @@ public class Data {
 	private boolean updatePanelProducts;
 
 	private Level level;
-	private Wife wife;
 
 	public Data(Level level, ProductType[] productTypes) {
 		this.productTypes = productTypes;
@@ -49,7 +48,6 @@ public class Data {
 		this.hazardRisk = INITIAL_HAZARD_RISK;
 		this.dayCounter = 0;
 		this.day = 0;
-		this.wife = new Wife();
 		this.level = level;
 
 		debts = new HashMap<Integer, Debt>();
@@ -242,10 +240,6 @@ public class Data {
 	/*
 	 * WIFE
 	 */
-
-	public Wife getWife() {
-		return wife;
-	}
 
 	public ProductType[] getProductTypes() {
 		return productTypes;
