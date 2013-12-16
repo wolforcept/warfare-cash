@@ -6,42 +6,51 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
+import main.FileReader;
 import data.enums.Cargo;
 
 public class Data {
 
 	public static final double WAR_CHANCE = 0.01, INITIAL_HAZARD_RISK = 0.001;
-	public static final int DAY_LENGTH = 50, WAR_COOLDOWN = 100,
-			NUMBER_OF_PRODUCTS_AVAILABLE_PER_CATEGORY = 2,
-			PODUCT_BOX_MAX_HEIGHT = 40, PODUCT_BOX_MIN_HEIGHT = 14,
-			INITIAL_MONEY = 1000;
-	public static final Dimension PANEL_DEFAULT_SIZE = new Dimension(320, 320);
-	public static final int TRUCK_CONSUMPTION = 2;
+	public static final int //
+			DAY_LENGTH = 50, //
+			WAR_COOLDOWN = 100, //
+			NUMBER_OF_PRODUCTS_AVAILABLE = 7, //
+			PODUCT_BOX_MAX_HEIGHT = 40, //
+			PODUCT_BOX_MIN_HEIGHT = 14, //
+			INITIAL_MONEY = 1000, //
+			TRUCK_CONSUMPTION = 2, //
+			NUMBER_OF_CLASSES = 5, //
+			GLOBAL_DAY_PRECISION = 5;
+	//
+	;
 
-	private HashMap<Integer, Debt> debts;
+	public static final Dimension PANEL_DEFAULT_SIZE = new Dimension(320, 320);
+
+	private LinkedList<Debt> debts;
 	private LinkedList<Truck> trucks;
 	private LinkedList<War> wars;
 
 	private int[] resources;
-	private ProductType[] productTypes;
-
-	private int money, selectedCity, warehouseCity, dayCounter, day;
+	private ProductCenter productCenter;
 
 	private String levelName;
-	private double hazardRisk;
-	private boolean updatePanelProducts;
+	private int money, selectedCity, warehouseCity, day;
+	private double hazardRisk, dayCounter;
+	private boolean thoroughReload, reloadProductPanel;
 
 	private Level level;
+	private WifeStat[] stats;
 
-	public Data(Level level, ProductType[] productTypes) {
-		this.productTypes = productTypes;
+	public Data(Level level) {
+
+		stats = FileReader.readStats();
+
 		this.money = Data.INITIAL_MONEY;
 		this.selectedCity = warehouseCity = -1;
 		this.levelName = level.getName();
@@ -49,8 +58,9 @@ public class Data {
 		this.dayCounter = 0;
 		this.day = 0;
 		this.level = level;
+		this.productCenter = new ProductCenter();
 
-		debts = new HashMap<Integer, Debt>();
+		debts = new LinkedList<Debt>();
 		trucks = new LinkedList<Truck>();
 		wars = new LinkedList<War>();
 
@@ -59,15 +69,24 @@ public class Data {
 			resources[i] = 0;
 		}
 
-		updatePanelProducts = false;
+		reloadProductPanel = true;
+		thoroughReload = false;
 	}
 
-	public boolean isUpdatePanelProducts() {
-		return updatePanelProducts;
+	public boolean isThoroughReload() {
+		return thoroughReload;
 	}
 
-	public void isUpdatePanelProducts(boolean b) {
-		updatePanelProducts = b;
+	public void setThoroughReload(boolean thoroughReload) {
+		this.thoroughReload = thoroughReload;
+	}
+	
+	public boolean isReloadProductPanel() {
+		return reloadProductPanel;
+	}
+	
+	public void setReloadProductPanel(boolean reloadProductPanel) {
+		this.reloadProductPanel = reloadProductPanel;
 	}
 
 	/*
@@ -83,19 +102,28 @@ public class Data {
 	}
 
 	/*
+	 * WIFE
+	 */
+
+	public ProductCenter getProductCenter() {
+		return productCenter;
+	}
+
+	/*
 	 * DEBTS
 	 */
 
 	public int getDebtTotal() {
 		int total = 0;
-		for (Entry<Integer, Debt> d : debts.entrySet()) {
-			total += d.getValue().getValue();
+		for (Debt d : debts) {
+			if (!d.isPaid())
+				total += d.getValue();
 		}
 		return total;
 	}
 
 	public void addDebt(Debt debt) {
-		debts.put(debt.getId(), debt);
+		debts.add(debt);
 	}
 
 	public int tryPayDebt(int id) {
@@ -113,11 +141,19 @@ public class Data {
 	}
 
 	public LinkedList<Debt> getDebtsSnapshot() {
-		LinkedList<Debt> debtSnap = new LinkedList<Debt>();
-		for (Entry<Integer, Debt> e : debts.entrySet()) {
-			debtSnap.add(e.getValue());
+		return new LinkedList<Debt>(debts);
+	}
+
+	public void updateDebts() {
+
+		for (Iterator<Debt> it = debts.iterator(); it.hasNext();) {
+			Debt d = (Debt) it.next();
+			if (d.isPaid())
+				it.remove();
+			else
+				d.increase();
+
 		}
-		return debtSnap;
 	}
 
 	/*
@@ -156,14 +192,14 @@ public class Data {
 	}
 
 	public void incrementDayCounter() {
-		dayCounter++;
+		dayCounter += (double) 1 / GLOBAL_DAY_PRECISION;
 	}
 
 	public void resetDayCounter() {
 		dayCounter = 0;
 	}
 
-	public int getDayCounter() {
+	public double getDayCounter() {
 		return dayCounter;
 	}
 
@@ -177,6 +213,7 @@ public class Data {
 
 	public void setWarehouseCity(int warehouseCity) {
 		this.warehouseCity = warehouseCity;
+		reloadProductPanel = true;
 	}
 
 	public void setSelectedCity(int i) {
@@ -238,14 +275,6 @@ public class Data {
 	}
 
 	/*
-	 * WIFE
-	 */
-
-	public ProductType[] getProductTypes() {
-		return productTypes;
-	}
-
-	/*
 	 * WARS
 	 */
 	public LinkedList<War> getWarsSnapshot() {
@@ -283,6 +312,10 @@ public class Data {
 			if (t.equals(truck))
 				it.remove();
 		}
+	}
+
+	public WifeStat[] getStats() {
+		return stats;
 	}
 
 }

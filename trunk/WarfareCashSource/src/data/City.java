@@ -1,8 +1,5 @@
 package data;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import data.enums.Cargo;
 
 public class City {
@@ -11,15 +8,17 @@ public class City {
 	private int x, y, a_nr_with_no_purpose_yet;
 	private int[] resourcePrices;
 	private int[] resourceQuantities;
-	private LinkedList<Product> products;
+	private Product[] products;
+	private int idMaker;
 
 	public City(String name, int x, int y, int nr) {
 		this.x = x;
 		this.y = y;
 		this.a_nr_with_no_purpose_yet = nr;
 		// this.hazarded = false;
-		products = new LinkedList<Product>();
+		this.products = new Product[Data.NUMBER_OF_PRODUCTS_AVAILABLE];
 		this.name = name;
+		this.idMaker = 1;
 
 		resourcePrices = new int[Cargo.values().length];
 		resourceQuantities = new int[Cargo.values().length];
@@ -51,7 +50,8 @@ public class City {
 		return name;
 	}
 
-	public LinkedList<Product> getProducts() {
+	public Product[] getProducts() {
+
 		return products;
 	}
 
@@ -71,22 +71,17 @@ public class City {
 		}
 	}
 
-	public void updateProducts(ProductType[] productTypes) {
-		products.clear();
-		for (int i = 0; i < productTypes.length; i++) {
-			for (int j = 0; j < Data.NUMBER_OF_PRODUCTS_AVAILABLE_PER_CATEGORY; j++) {
-				Product p = productTypes[i].createProduct();
-				products.add(p);
-				// System.out.println("added " + p.getName() + " for " +
-				// p.getPrice());
-			}
+	public void updateProducts(ProductCenter center, int numberOfStats) {
+		for (int i = 0; i < products.length; i++) {
+			products[i] = center.createProduct(Data.NUMBER_OF_CLASSES,
+					numberOfStats);
 		}
 	}
 
-	public void removeProduct(Product p) {
-		for (Iterator<Product> it = products.iterator(); it.hasNext();it.next()) {
-			if (it.equals(p))
-				it.remove();
+	public void removeProduct(long id) {
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] != null && products[i].getId() == id)
+				products[i] = null;
 		}
 	}
 
@@ -94,7 +89,7 @@ public class City {
 		return Math.hypot(x - remoteCity.getX(), y - remoteCity.getY());
 	}
 
-	public void addResource(int index, int ammount) {
+	public void addResourceQuantity(int index, int ammount) {
 		resourceQuantities[index] += ammount;
 	}
 

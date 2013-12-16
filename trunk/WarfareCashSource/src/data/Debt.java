@@ -6,6 +6,7 @@ public class Debt {
 	private static int incrementableId = 0;
 	private double interest;
 	private int id, debtValue, initialValue;
+	private boolean paid;
 
 	public Debt(int ammount, double interest) {
 		// this.expirationDate = expirationDate;
@@ -14,6 +15,7 @@ public class Debt {
 		System.out.println("Created debt of " + ammount + " increasing "
 				+ interest);
 		this.id = incrementableId++;
+		paid = false;
 	}
 
 	public void increase() {
@@ -30,6 +32,14 @@ public class Debt {
 
 	public void setValue(int ammount) {
 		debtValue = ammount;
+	}
+
+	public void paid() {
+		paid = true;
+	}
+
+	public boolean isPaid() {
+		return paid;
 	}
 
 }
