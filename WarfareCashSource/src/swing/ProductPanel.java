@@ -1,9 +1,6 @@
 package swing;
 
 import java.awt.GridLayout;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -13,49 +10,48 @@ import javax.swing.JPanel;
 import main.MainWindow;
 import data.Data;
 import data.Product;
+import data.WifeStat;
 
 public class ProductPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private LinkedList<ProductBox> productBoxes;
 
-	public ProductPanel() {
+	private ProductBox[] productBoxes;
+	private WifeStat[] stats;
 
-		productBoxes = new LinkedList<ProductBox>();
-
+	public ProductPanel(WifeStat[] stats) {
+		this.stats = stats;
+		productBoxes = new ProductBox[Data.NUMBER_OF_PRODUCTS_AVAILABLE];
 		setBorder(BorderFactory.createTitledBorder("Products for Sale"));
 	}
 
-	public void reloadUI() {
-		removeAll();
-		if (productBoxes.size() > 0) {
-			BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
-			setLayout(l);
-			for (ProductBox p : productBoxes) {
-				add(p);
-				p.updateLayout();
+	public void reloadUI(Data data) {
+		if (data.isReloadProductPanel()) {
+			removeAll();
+			if (data.getWarehouseCity() != null) {
+				BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
+				setLayout(l);
+				for (ProductBox p : productBoxes) {
+					if (p != null) {
+						add(p);
+						p.updateLayout();
+					}
+				}
+			} else {
+				setLayout(new GridLayout(1, 1));
+				add(new JLabel("No Products Avaliable", JLabel.CENTER));
 			}
-		} else {
-			setLayout(new GridLayout(1, 1));
-			add(new JLabel("No Products Avaliable", JLabel.CENTER));
-		}
 
+			data.setReloadProductPanel(false);
+		}
 	}
 
-	public void setProducts(MainWindow window, LinkedList<Product> products) {
-		productBoxes.clear();
+	public void setProducts(MainWindow window, Data data, Product[] products) {
 
-		Collections.sort(products, new Comparator<Product>() {
-
-			@Override
-			public int compare(Product o1, Product o2) {
-				return o1.getPrice() <= o2.getPrice() ? -1 : 1;
-			}
-		});
-
-		int i = 0;
-		for (Product p : products) {
-			productBoxes.add(new ProductBox(window, i++, p));
+		int id = 0;
+		for (int j = 0; j < Data.NUMBER_OF_PRODUCTS_AVAILABLE; j++) {
+			productBoxes[j] = new ProductBox(window, data, stats, id++,
+					products[j]);
 		}
 	}
 }

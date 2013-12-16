@@ -1,19 +1,20 @@
 package data;
 
-import data.enums.Stat;
-
 public class Product {
-	private double price;
+	public static final int MAX_STAT = 7;
+	private int price;
 	private String name;
-	private int[] stats;
+	private int[] statsValues;
+	private long id;
 
-	public Product(String name, int price, int[] stats) {
-		this.name = name;
+	public Product(String name, int price, int[] statValues, long id) {
+		this.name = name.replace("_", " ");
 		this.price = price;
-		this.stats = stats;
+		this.statsValues = statValues;
+		this.id = id;
 	}
 
-	public double getPrice() {
+	public int getPrice() {
 		return price;
 	}
 
@@ -21,7 +22,15 @@ public class Product {
 		return name;
 	}
 
-	public int getStat(Stat stat) {
-		return stats[stat.ordinal()];
+	public int[] getStatValues() {
+		return statsValues;
+	}
+
+	public int getStatValue(int index) {
+		return statsValues[index];
+	}
+
+	public long getId() {
+		return id;
 	}
 }

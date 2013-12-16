@@ -16,7 +16,7 @@ public class MyButton extends JComponent implements MouseListener {
 	private String text = "null";
 	private int width, height;
 
-	private MyAction action;
+	private MyAction action_Click, action_MouseEnter;
 
 	private boolean mousein;
 
@@ -49,8 +49,12 @@ public class MyButton extends JComponent implements MouseListener {
 		this.text = text;
 	}
 
-	public void addAction(MyAction action) {
-		this.action = action;
+	public void addClickAction(MyAction action) {
+		this.action_Click = action;
+	}
+
+	public void addMouseEnterAction(MyAction action) {
+		this.action_MouseEnter = action;
 	}
 
 	@Override
@@ -65,7 +69,7 @@ public class MyButton extends JComponent implements MouseListener {
 
 	@Override
 	public Dimension getMaximumSize() {
-		return null;
+		return new Dimension(text.length() * 10, 20);
 	}
 
 	@Override
@@ -75,6 +79,8 @@ public class MyButton extends JComponent implements MouseListener {
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		mousein = true;
+		if (action_MouseEnter != null)
+			action_MouseEnter.perform();
 	}
 
 	@Override
@@ -88,8 +94,8 @@ public class MyButton extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		if (action != null)
-			action.perform();
+		if (action_Click != null)
+			action_Click.perform();
 	}
 
 	public interface MyAction {

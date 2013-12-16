@@ -9,6 +9,7 @@ import data.Debt;
 import data.Event;
 import data.Truck;
 import data.War;
+import data.WifeStat;
 
 public class DataController {
 
@@ -30,6 +31,10 @@ public class DataController {
 
 		data.incrementDayCounter();
 
+		for (WifeStat stat : data.getStats()) {
+			stat.decrease();
+		}
+
 		if (data.getDayCounter() >= Data.DAY_LENGTH) {
 			nextDay();
 			data.resetDayCounter();
@@ -43,12 +48,10 @@ public class DataController {
 		ArrayList<City> cities = data.getCitiesSnapshot();
 		for (City city : cities) {
 			city.updateResources();
-			city.updateProducts(data.getProductTypes());
+			city.updateProducts(data.getProductCenter(), data.getStats().length);
 		}
-		for (Debt d : data.getDebtsSnapshot()) {
-			d.increase();
-		}
-		data.isUpdatePanelProducts(true);
+		data.updateDebts();
+		data.setThoroughReload(true);
 	}
 
 	public void releaseTrucks() {
@@ -61,6 +64,7 @@ public class DataController {
 				data.removeTruck(t);
 			}
 		}
+
 	}
 
 	public void stepWars() {
@@ -111,7 +115,7 @@ public class DataController {
 		} else {
 			data.addMoney(t.getDestination()
 					.getResourcePrice(t.getCargoIndex()) * t.getCargoAmmount());
-			t.getDestination().addResource(t.getCargoIndex(),
+			t.getDestination().addResourceQuantity(t.getCargoIndex(),
 					t.getCargoAmmount());
 		}
 	}

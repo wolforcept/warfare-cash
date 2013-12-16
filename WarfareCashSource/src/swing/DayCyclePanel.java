@@ -25,7 +25,7 @@ public class DayCyclePanel extends JPanel {
 		graphs.setColor(Color.black);
 		graphs.fillRect(0, 0, w, h);
 
-		float p = data.getDayCounter() / ((float) Data.DAY_LENGTH - 1);
+		float p = (float) (data.getDayCounter() / ((float) Data.DAY_LENGTH - 1));
 
 		float r = Math.max(0, 1f - (0.5f * p));
 		float g = Math.max(0, 1f - (0.5f * p));

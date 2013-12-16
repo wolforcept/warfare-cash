@@ -66,7 +66,7 @@ public class Controller extends Thread {
 				dataController.step();
 
 				window.reloadUI();
-				sleep(1000);
+				sleep(1000 / Data.GLOBAL_DAY_PRECISION);
 
 			}
 		} catch (InterruptedException e) {

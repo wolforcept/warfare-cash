@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,16 +17,16 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import swing.DayCyclePanel;
+import swing.Dialog_debts;
 import swing.Map;
 import swing.MyButton;
 import swing.MyButton.MyAction;
+import swing.PanelStats;
 import swing.ProductPanel;
+import swing.Watch;
 import data.Data;
 import data.Level;
-import data.ProductType;
 import data.Truck;
-import data.PanelWife;
 import data.enums.Cargo;
 
 public class MainWindow {
@@ -44,11 +45,11 @@ public class MainWindow {
 	private Data data;
 	private DataController dataController;
 	private Dialog_debts dialog_debts;
-	private PanelWife wife;
+	private PanelStats wife;
 
-	public MainWindow(Level level, ProductType[] productTypes) {
+	public MainWindow(Level level) {
 
-		data = new Data(level, productTypes);
+		data = new Data(level);
 		dataController = new DataController(data);
 
 		frame = new JFrame();
@@ -67,10 +68,10 @@ public class MainWindow {
 			panel_wife = new JPanel();
 			panel_wife.setLayout(new BorderLayout());
 
-			wife = new PanelWife(data, 10, 5, 5, 6, 0.2);
+			wife = new PanelStats(data, 10, 5, 5, 0.2);
 			panel_wife.add(wife, BorderLayout.NORTH);
 
-			panel_products = new ProductPanel();
+			panel_products = new ProductPanel(data.getStats());
 
 			panel_wife.add(panel_products, BorderLayout.CENTER);
 
@@ -83,10 +84,11 @@ public class MainWindow {
 		frame.setVisible(true);
 		reloadUI();
 
+		dialog_debts = new Dialog_debts(frame, data);
+
 		/*
 		 * NOT SWING
 		 */
-		dialog_debts = new Dialog_debts(frame, data);
 
 		new Controller(this, dataController).start();
 	}
@@ -106,7 +108,7 @@ public class MainWindow {
 		panel_means_money.add(label_debt);
 
 		MyButton button_loan = new MyButton("Loan", 45, 20);
-		button_loan.addAction(new MyAction() {
+		button_loan.addClickAction(new MyAction() {
 			@Override
 			public void perform() {
 				String answer = JOptionPane.showInputDialog(null,
@@ -140,7 +142,7 @@ public class MainWindow {
 		panel_means_money.add(button_loan);
 
 		MyButton button_pay = new MyButton("Pay", 45, 20);
-		button_pay.addAction(new Action_pay());
+		button_pay.addClickAction(new Action_pay_buttton());
 		panel_means_money.add(button_pay);
 
 		panel_means.add(panel_means_money, BorderLayout.NORTH);
@@ -163,7 +165,7 @@ public class MainWindow {
 
 				label_warehouse_quantities[i] = new JLabel();
 				label_warehouse_quantities[i].setPreferredSize(new Dimension(
-						80, 20));
+						40, 20));
 				panel_private_resource.add(label_resource_name,
 						BorderLayout.CENTER);
 				panel_private_resource.add(label_warehouse_quantities[i],
@@ -173,15 +175,24 @@ public class MainWindow {
 
 			panel_means_main.add(panel_resources, BorderLayout.CENTER);
 
+			JPanel panel_means_east = new JPanel();
+			panel_means_east.setLayout(new BoxLayout(panel_means_east,
+					BoxLayout.Y_AXIS));
+
 			JPanel panel_day_settings = new JPanel();
+			panel_day_settings.setBorder(BorderFactory.createLineBorder(
+					new Color(0f, 0f, 0f, 0.1f), 5));
 			panel_day_settings.setLayout(new BorderLayout());
 
 			label_day_number = new JLabel("day 0");
-			panel_day_settings
-					.add(new DayCyclePanel(data), BorderLayout.CENTER);
+			panel_day_settings.add(new Watch(data, 100), BorderLayout.CENTER);
 			panel_day_settings.add(label_day_number, BorderLayout.NORTH);
 
-			panel_means_main.add(panel_day_settings, BorderLayout.EAST);
+			panel_means_east.add(panel_day_settings, BorderLayout.EAST);
+
+			panel_means_east.add(new MyButton("shitless Button", 20, 20));
+
+			panel_means_main.add(panel_means_east, BorderLayout.EAST);
 
 			panel_means.add(panel_means_main);
 		}
@@ -265,7 +276,7 @@ public class MainWindow {
 			{// BUTTONS
 				MyButton button_zero = new MyButton("0", 19, 20);
 				button_zero.setPreferredSize(new Dimension(45, 20));
-				button_zero.addAction(new Action_setzero(i));
+				button_zero.addClickAction(new Action_setzero(i));
 				panel_cargo_private_bottom.add(button_zero);
 
 				spinners[i] = new JSpinner(getSpinnerModel());
@@ -274,19 +285,19 @@ public class MainWindow {
 
 				MyButton button_max_buy = new MyButton("Max", 40, 20);
 				button_max_buy.setPreferredSize(new Dimension(65, 20));
-				button_max_buy.addAction(new Action_setMaxPrice(i));
+				button_max_buy.addClickAction(new Action_setMaxPrice(i));
 
 				MyButton buttons_buy = new MyButton("Buy", 38, 20);
 				buttons_buy.setPreferredSize(new Dimension(65, 20));
-				buttons_buy.addAction(new Action_buy(i));
+				buttons_buy.addClickAction(new Action_buy(i));
 
 				MyButton button_max_sell = new MyButton("Max", 40, 20);
 				button_max_sell.setPreferredSize(new Dimension(65, 20));
-				button_max_sell.addAction(new Action_setMaxMerch(i));
+				button_max_sell.addClickAction(new Action_setMaxMerch(i));
 
 				MyButton button_sell = new MyButton("Sell", 38, 20);
 				button_sell.setPreferredSize(new Dimension(65, 20));
-				button_sell.addAction(new Action_sell(i));
+				button_sell.addClickAction(new Action_sell(i));
 
 				panel_cargo_private_bottom.add(button_max_buy);
 				panel_cargo_private_bottom.add(buttons_buy);
@@ -312,13 +323,32 @@ public class MainWindow {
 		frame.repaint();
 	}
 
-	public void reloadUI(boolean b) {
-		data.isUpdatePanelProducts(b);
+	public void reloadUI_thorough() {
+		data.setThoroughReload(true);
 		reloadUI();
 	}
 
 	public void reloadUI() {
+		/*
+		 * THOROUGH RELOAD
+		 */
+		if (data.isThoroughReload()) {
 
+			// if (data.getWarehouseCity() != null) {
+			// panel_products.setProducts(this, data, data.getWarehouseCity()
+			// .getProducts());
+			//
+			// }
+
+			if (dialog_debts != null) {
+				dialog_debts.reloadDebts();
+			}
+
+			data.setThoroughReload(false);
+		}
+		/*
+		 * SIMPLE RELOAD
+		 */
 		if (data.getWarehouseCity() != null)
 			panel_means.setBorder(BorderFactory.createTitledBorder("Means at "
 					+ data.getWarehouseCity().getName()));
@@ -356,12 +386,9 @@ public class MainWindow {
 		}
 
 		{// PANEL WIFE
-			wife.reload();
-			if (data.getWarehouseCity() != null && data.isUpdatePanelProducts()) {
-				panel_products.setProducts(this, data.getWarehouseCity()
+			if (data.getWarehouseCity() != null)
+				panel_products.setProducts(this, data, data.getWarehouseCity()
 						.getProducts());
-				data.isUpdatePanelProducts(false);
-			}
 		}
 
 		{// PANEL SHOP
@@ -384,7 +411,7 @@ public class MainWindow {
 			}
 		}
 
-		panel_products.reloadUI();
+		panel_products.reloadUI(data);
 		frame.revalidate();
 	}
 
@@ -410,7 +437,7 @@ public class MainWindow {
 		);
 	}
 
-	class Action_buy implements MyAction {
+	private class Action_buy implements MyAction {
 		int index;
 
 		public Action_buy(int i) {
@@ -422,10 +449,12 @@ public class MainWindow {
 
 			int ammount = (Integer) spinners[index].getValue();
 
-			if (ammount > 0 && data.getSelCity() != null) {
+			if (data.getSelCity().getResourceQuantity(index) < ammount) {
 
-				ammount = Math.min(ammount, data.getSelCity()
-						.getResourceQuantity(index));
+				JOptionPane.showMessageDialog(frame, "There is not enough "
+						+ Cargo.values()[index].getName() + " on this city.");
+
+			} else if (ammount > 0 && data.getSelCity() != null) {
 
 				int merch_price = ammount
 						* data.getSelCity().getResourcePrice(index);
@@ -434,7 +463,7 @@ public class MainWindow {
 
 				int total_price = merch_price + trip_price;
 
-				if (data.getMoney() > total_price) {
+				if (data.getMoney() >= total_price) {
 
 					if (data.getSelCity() == data.getWarehouseCity()) {
 						data.addResource(index, ammount);
@@ -446,6 +475,7 @@ public class MainWindow {
 						data.addTruck(c);
 						data.addMoney(-total_price);
 					}
+					data.getSelCity().addResourceQuantity(index, -ammount);
 
 				} else {
 					JOptionPane.showMessageDialog(frame,
@@ -477,8 +507,13 @@ public class MainWindow {
 				int trip_price = data.getTripPrice(data.getSelCity(),
 						data.getWarehouseCity());
 
-				if (data.hasResource(index, ammount)) {
+				if (data.getMoney() < trip_price) {
+					JOptionPane.showMessageDialog(frame,
+							"Not enough money to pay the trip.");
+				} else if (data.hasResource(index, ammount)) {
 					data.removeResource(index, ammount);
+					data.getSelCity().addResourceQuantity(index, ammount);
+
 					if (data.getSelCity() == data.getWarehouseCity()) {
 						data.addMoney(package_price);
 					} else {
@@ -495,7 +530,6 @@ public class MainWindow {
 			}
 			reloadUI();
 		}
-
 	};
 
 	private class Action_setzero implements MyAction {
@@ -553,7 +587,7 @@ public class MainWindow {
 		}
 	}
 
-	private class Action_pay implements MyAction {
+	private class Action_pay_buttton implements MyAction {
 		@Override
 		public void perform() {
 			dialog_debts.reloadDebts();
